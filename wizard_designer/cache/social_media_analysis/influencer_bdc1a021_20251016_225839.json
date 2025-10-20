@@ -1,0 +1,211 @@
+{
+  "username": "influencer",
+  "session_id": "bdc1a021",
+  "saved_at": "2025-10-16T22:58:39.168897",
+  "analysis": {
+    "inferred_archetype": {
+      "name": "Aesthetic Lifestyle Males",
+      "confidence_0_1": 0.85,
+      "rationale": "The influencer showcases a stylish, luxury aesthetic with a focus on fashion and lifestyle, appealing primarily to women."
+    },
+    "archetype_candidates": [
+      {
+        "name": "Beauty & Lifestyle",
+        "confidence_0_1": 0.75
+      }
+    ],
+    "influencer_persona": {
+      "name_unknown_ok": true,
+      "role": "Fashion Influencer",
+      "traits": [
+        "stylish",
+        "luxurious",
+        "confident",
+        "influential"
+      ]
+    },
+    "visual_style": {
+      "dress_description": "Chic, tailored outfits with high-end accessories, often featuring bold patterns and colors.",
+      "common_color_palettes": [
+        "black",
+        "white",
+        "red",
+        "gold"
+      ],
+      "styling_vibe_tags": [
+        "luxury",
+        "modern",
+        "trendy"
+      ]
+    },
+    "synthesis_sentences": [
+      "This influencer embodies a luxurious lifestyle that followers aspire to.",
+      "Their fashion choices inspire followers to elevate their own style.",
+      "Fans are drawn to their confident demeanor and stylish outfits.",
+      "The influencer promotes a sense of status through their aesthetic.",
+      "Followers seek to replicate the influencer's chic looks.",
+      "They often showcase high-end accessories that attract attention.",
+      "The influencer's posts encourage followers to invest in their appearance.",
+      "Many aspire to achieve the same level of confidence and style.",
+      "Their content highlights luxury brands that followers might want to purchase.",
+      "The influencer represents the ideal of modern masculinity and style."
+    ],
+    "audience_alignment": {
+      "referent_audience": {
+        "who": "Young women aged 18-30",
+        "demographics": "Primarily urban, fashion-conscious individuals",
+        "why_they_want_to_be_like_them": "They aspire to the influencer's stylish and confident persona."
+      },
+      "admirer_audience": {
+        "who": "Men aged 18-35",
+        "demographics": "Fashion-forward individuals looking for inspiration",
+        "why_they_follow": "They admire the influencer's style and seek guidance on fashion."
+      },
+      "real_product_consumers": {
+        "who": "Young women aged 18-30",
+        "demographics": "Fashion enthusiasts seeking luxury items",
+        "rationale": "They want to emulate the influencer's high-end lifestyle."
+      }
+    },
+    "recommended_product_types": [
+      "Luxury skincare",
+      "Designer accessories",
+      "High-end fashion items",
+      "Premium hair care products",
+      "Stylish footwear",
+      "Gourmet health supplements",
+      "Fashionable activewear",
+      "Luxury fragrances",
+      "Chic home decor",
+      "Exclusive lifestyle products"
+    ],
+    "marketing_angle": "Elevate your lifestyle with luxury products that reflect your style.",
+    "brand_design_guidance": {
+      "sentiment": "Sophisticated and aspirational",
+      "tone_words": [
+        "elegant",
+        "confident",
+        "trendy"
+      ],
+      "typography": "Modern sans-serif for headers, classic serif for body text.",
+      "color_palette_hex": [
+        "#000000",
+        "#FFFFFF",
+        "#FF0000",
+        "#FFD700"
+      ],
+      "color_roles": [
+        {
+          "hex": "#000000",
+          "role_primary": "primary"
+        },
+        {
+          "hex": "#FFFFFF",
+          "role_secondary": "secondary"
+        },
+        {
+          "hex": "#FF0000",
+          "role_accent": "accent"
+        },
+        {
+          "hex": "#FFD700",
+          "role_neutral": "neutral"
+        }
+      ],
+      "color_usage": [
+        {
+          "hex": "#000000",
+          "usage_contexts": "headers, text",
+          "ratio_approx_percent": 50
+        },
+        {
+          "hex": "#FFFFFF",
+          "usage_contexts": "backgrounds, negative space",
+          "ratio_approx_percent": 30
+        },
+        {
+          "hex": "#FF0000",
+          "usage_contexts": "CTAs, highlights",
+          "ratio_approx_percent": 10
+        },
+        {
+          "hex": "#FFD700",
+          "usage_contexts": "accents, details",
+          "ratio_approx_percent": 10
+        }
+      ],
+      "logo_guidelines": {
+        "style_keywords": [
+          "minimalist",
+          "luxurious"
+        ],
+        "iconography_recommendations": "Stylized fashion-related symbols.",
+        "typography_pairing": "Bold sans-serif for the brand name, elegant serif for taglines.",
+        "safe_area_clearspace_rules": "Maintain a clear space equal to the height of the logo around it.",
+        "lockup_recommendations": "Horizontal layout preferred, with icon on the left and text on the right.",
+        "background_contrast_rules": "Ensure high contrast between logo and background for visibility.",
+        "do": [
+          "Use high-quality materials for any printed materials.",
+          "Keep the design clean and uncluttered."
+        ],
+        "dont": [
+          "Use overly complex designs.",
+          "Neglect the importance of color contrast."
+        ]
+      },
+      "imagery_guidelines": "Use high-resolution images that reflect a luxurious lifestyle.",
+      "packaging_notes": "Sustainable materials with a premium feel."
+    },
+    "brand_naming_guidelines": {
+      "naming_philosophy": "Names should evoke luxury and sophistication.",
+      "style_keywords": [
+        "elegant",
+        "modern",
+        "trendy"
+      ],
+      "word_categories": {
+        "latin_derived": [
+          "lux",
+          "vita",
+          "aura"
+        ],
+        "modern_tech": [
+          "style",
+          "trend",
+          "vibe"
+        ],
+        "wellness_nature": [
+          "pure",
+          "green",
+          "fresh"
+        ],
+        "luxury_premium": [
+          "elite",
+          "prestige",
+          "exclusive"
+        ],
+        "performance_energy": [
+          "boost",
+          "power",
+          "dynamic"
+        ]
+      },
+      "naming_patterns": [
+        "two-word combinations",
+        "compound words",
+        "neologisms"
+      ],
+      "syllable_preference": "Prefer names with 2-3 syllables for memorability.",
+      "cultural_considerations": [
+        "Avoid cultural appropriation; ensure inclusivity."
+      ],
+      "avoid_words": [
+        "cheap",
+        "basic",
+        "ordinary"
+      ],
+      "brand_voice_alignment": "Maintain a confident and aspirational tone.",
+      "influencer_alignment": "Names should reflect the influencer's stylish and luxurious persona."
+    }
+  }
+}

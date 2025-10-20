@@ -1,0 +1,200 @@
+{
+  "username": "influencer",
+  "session_id": "226e2781",
+  "saved_at": "2025-10-21T07:39:46.049572",
+  "analysis": {
+    "inferred_archetype": {
+      "name": "Beauty & Lifestyle",
+      "confidence_0_1": 0.8,
+      "rationale": "The influencer's visuals showcase a stylish, polished aesthetic with a focus on luxury and lifestyle, appealing predominantly to women."
+    },
+    "archetype_candidates": [
+      {
+        "name": "Micro/Niche Influencers",
+        "confidence_0_1": 0.6
+      }
+    ],
+    "influencer_persona": {
+      "name_unknown_ok": true,
+      "role": "Lifestyle Influencer",
+      "traits": [
+        "stylish",
+        "luxurious",
+        "approachable",
+        "trendy"
+      ]
+    },
+    "visual_style": {
+      "dress_description": "Chic and fashionable outfits, often with elegant footwear.",
+      "common_color_palettes": "Muted tones with pops of color, often incorporating black, white, and gold.",
+      "styling_vibe_tags": [
+        "luxury",
+        "sophisticated",
+        "modern"
+      ]
+    },
+    "synthesis_sentences": [
+      "The influencer embodies a luxurious lifestyle that resonates with their audience.",
+      "Followers aspire to achieve a polished, stylish look through their fashion choices.",
+      "They might invest in high-quality skincare and beauty products to enhance their routine.",
+      "The influencer's posts inspire confidence and a sense of elegance among followers.",
+      "Many followers are drawn to their aspirational lifestyle and the products they showcase.",
+      "The influencer promotes wellness through beauty, encouraging followers to embrace self-care.",
+      "Their audience seeks to emulate the influencer's chic and fashionable aesthetic.",
+      "Supplements like collagen and beauty gummies are likely products followers would consider.",
+      "The influencer's visuals suggest a blend of beauty and lifestyle that captivates their audience.",
+      "Engaging with this influencer inspires followers to elevate their daily routines."
+    ],
+    "audience_alignment": {
+      "referent_audience": {
+        "who": "Women seeking a luxurious lifestyle",
+        "demographics": "Ages 18-35, primarily female",
+        "why_they_want_to_be_like_them": "To achieve a stylish, confident appearance and embrace self-care."
+      },
+      "admirer_audience": {
+        "who": "Men and women who appreciate aesthetic content",
+        "demographics": "Mixed, ages 18-40",
+        "why_they_follow": "To enjoy visually appealing content and lifestyle inspiration."
+      },
+      "real_product_consumers": {
+        "who": "Women interested in beauty and wellness products",
+        "demographics": "Ages 18-35, primarily female",
+        "rationale": "They aspire to replicate the influencer's beauty regimen and lifestyle."
+      }
+    },
+    "recommended_product_types": [
+      "Collagen supplements",
+      "Beauty gummies",
+      "Luxury skincare products",
+      "Vitamin D",
+      "Premium green superfoods"
+    ],
+    "marketing_angle": "Elevate your beauty and wellness with luxurious products that inspire confidence.",
+    "brand_design_guidance": {
+      "sentiment": "Sophisticated and aspirational",
+      "tone_words": [
+        "elegant",
+        "chic",
+        "inviting"
+      ],
+      "typography": "Modern sans-serif for headers, serif for body text",
+      "color_palette_hex": {
+        "primary": "#000000",
+        "secondary": "#FFFFFF",
+        "accent": "#FFD700",
+        "neutral": "#F5F5F5"
+      },
+      "color_roles": [
+        {
+          "hex": "#000000",
+          "role_primary": "primary"
+        },
+        {
+          "hex": "#FFFFFF",
+          "role_secondary": "secondary"
+        },
+        {
+          "hex": "#FFD700",
+          "role_accent": "accent"
+        },
+        {
+          "hex": "#F5F5F5",
+          "role_neutral": "neutral"
+        }
+      ],
+      "color_usage": [
+        {
+          "hex": "#000000",
+          "usage_contexts": "text, headers",
+          "ratio_approx_percent": 50
+        },
+        {
+          "hex": "#FFFFFF",
+          "usage_contexts": "backgrounds, text",
+          "ratio_approx_percent": 30
+        },
+        {
+          "hex": "#FFD700",
+          "usage_contexts": "CTAs, highlights",
+          "ratio_approx_percent": 10
+        },
+        {
+          "hex": "#F5F5F5",
+          "usage_contexts": "backgrounds, accents",
+          "ratio_approx_percent": 10
+        }
+      ],
+      "logo_guidelines": {
+        "style_keywords": [
+          "minimalist",
+          "elegant"
+        ],
+        "iconography_recommendations": "Abstract shapes or elegant symbols",
+        "typography_pairing": "Sans-serif for logo, serif for tagline",
+        "safe_area_clearspace_rules": "Maintain clear space equal to the height of the logo",
+        "lockup_recommendations": "Horizontal lockup with icon to the left of the text",
+        "background_contrast_rules": "Ensure high contrast between logo and background colors",
+        "do": [
+          "Use high-quality images",
+          "Maintain brand consistency"
+        ],
+        "dont": [
+          "Use overly complex designs",
+          "Clash colors"
+        ]
+      },
+      "imagery_guidelines": "Use high-resolution, aesthetically pleasing images that match the luxury vibe.",
+      "packaging_notes": "Ensure packaging reflects the elegant brand aesthetic with minimalistic designs."
+    },
+    "brand_naming_guidelines": {
+      "naming_philosophy": "Names should evoke luxury, beauty, and wellness.",
+      "style_keywords": [
+        "elegant",
+        "modern",
+        "inviting"
+      ],
+      "word_categories": {
+        "latin_derived": [
+          "vita",
+          "lux",
+          "belle"
+        ],
+        "modern_tech": [
+          "glow",
+          "boost",
+          "vibe"
+        ],
+        "wellness_nature": [
+          "pure",
+          "nature",
+          "essence"
+        ],
+        "luxury_premium": [
+          "elite",
+          "prestige",
+          "royal"
+        ],
+        "performance_energy": [
+          "power",
+          "fuel",
+          "dynamic"
+        ]
+      },
+      "naming_patterns": [
+        "two-word combinations",
+        "single powerful words"
+      ],
+      "syllable_preference": "Prefer two to three syllables for elegance.",
+      "cultural_considerations": [
+        "Avoid names that may have negative connotations in other languages."
+      ],
+      "avoid_words": [
+        "cheap",
+        "basic",
+        "ordinary"
+      ],
+      "brand_voice_alignment": "Maintain a sophisticated and approachable tone.",
+      "influencer_alignment": "Names should reflect the influencer's luxurious and trendy persona."
+    }
+  }
+}

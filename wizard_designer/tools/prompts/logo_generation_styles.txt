@@ -1,0 +1,44 @@
+# Influencer Brand Logo Generation Style Guide (2025)
+# Updated guidelines optimized for influencer-driven product branding
+
+------------------------------------------------------------
+1. Bold Minimalism with a Twist
+------------------------------------------------------------
+prompt: A clean, minimalist logo featuring a clever visual twist — hidden icons, playful negative space, or subtle asymmetric angles.
+style_guide: Stick to a limited color palette and simple shapes but include a memorable, unexpected element. Aim for timeless simplicity with impact.
+
+------------------------------------------------------------
+2. Expressive, Custom Typography
+------------------------------------------------------------
+prompt: A logo built around distinctive, custom letterforms — bold, artistic, and reflective of the creator's personality.
+style_guide: Use exaggerated strokes, playful ligatures, or unique spacing. Keep readability high while showcasing originality.
+
+------------------------------------------------------------
+3. Nature-Inspired & Eco-Aware
+------------------------------------------------------------
+prompt: A logo grounded in organic shapes or textures, conveying authenticity and eco-conscious values.
+style_guide: Use earthy tones, soft curves, and natural motifs like leaves or waves. Keep forms simple and modern.
+
+------------------------------------------------------------
+4. Symbolic Storytelling
+------------------------------------------------------------
+prompt: A logo where a simplified visual element symbolizes the brand’s core narrative — e.g., arrows for progress, abstract emblems for innovation.
+style_guide: Incorporate one or two meaningful, refined icon elements that are recognizable even at small scales.
+
+------------------------------------------------------------
+5. Depth & Layering (Static, 3D-Inspired)
+------------------------------------------------------------
+prompt: A static logo using layered shapes or shadowing to create subtle depth and dimensionality.
+style_guide: Include restrained gradients, overlapping shapes, or drop shadows. Keep designs static and compatible with print.
+
+------------------------------------------------------------
+6. Retro Revival & Nostalgic Flair
+------------------------------------------------------------
+prompt: A modern logo with vintage inspiration — simplified badge silhouettes, retro fonts, or nostalgic color schemes.
+style_guide: Use muted tones, geometric emblem shapes, or stylized serif fonts. Keep the composition clean and relevant to 2025 aesthetics.
+
+------------------------------------------------------------
+7. Lowercase vs Statement Caps
+------------------------------------------------------------
+prompt: A logo designed with intentional typography casing — either all lowercase for friendliness or all caps for boldness.
+style_guide: Lowercase communicates approachability and authenticity; uppercase conveys strength and authority. Pair casing with typography style.

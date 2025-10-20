@@ -1,0 +1,15 @@
+agency-swarm[fastapi]>=1.0.2
+fastapi
+uvicorn
+python-dotenv
+apify-client
+openai>=1.109.1,<2.0
+requests
+python-whois
+Pillow
+copilotkit
+pydantic>=2.0.0
+websockets
+langgraph
+langchain-openai
+langchain-core

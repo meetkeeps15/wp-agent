@@ -1,0 +1,33 @@
+{
+  "session_id": "7c75ef96",
+  "saved_at": "2025-10-16T23:43:53",
+  "palette": [
+    "#8661C1",
+    "#C1A5E0",
+    "#E2D6F9",
+    "#4B306F",
+    "#AF6DDF"
+  ],
+  "roles": [
+    {
+      "hex": "#8661C1",
+      "role": "primary"
+    },
+    {
+      "hex": "#C1A5E0",
+      "role": "secondary"
+    },
+    {
+      "hex": "#E2D6F9",
+      "role": "background"
+    },
+    {
+      "hex": "#4B306F",
+      "role": "accent"
+    },
+    {
+      "hex": "#AF6DDF",
+      "role": "highlight"
+    }
+  ]
+}

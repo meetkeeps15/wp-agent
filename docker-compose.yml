@@ -1,0 +1,27 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: brandmenow-truva:latest
+    container_name: truva-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./outputs:/app/outputs
+      - ./cache:/app/cache
+    restart: unless-stopped
+
+    # Healthcheck to ensure the API becomes available
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -X POST -H 'Content-Type: application/json' -d '{\"prompt\":\"ok\"}' http://localhost:8080/api/ask || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+networks:
+  default:
+    name: truva-net

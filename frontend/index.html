@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codey - Wizard Designer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" id="app-styles" href="styles.css?v=4">
+</head>
+<body class="with-sidebar">
+    <aside class="sidebar" aria-label="Sidebar">
+        <div class="sidebar-header">
+            <button id="sidebar-toggle" class="icon-btn toggle-btn" aria-label="Toggle sidebar" title="Toggle sidebar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M9 6l6 6-6 6"/></svg>
+            </button>
+            <div class="title">Custom GPT</div>
+            <button id="new-chat" class="icon-btn plus-btn" aria-label="New Chat" title="New Chat">
+                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M7.007 12a.75.75 0 0 1 .75-.75h3.493V7.757a.75.75 0 0 1 1.5 0v3.493h3.493a.75.75 0 1 1 0 1.5H12.75v3.493a.75.75 0 0 1-1.5 0V12.75H7.757a.75.75 0 0 1-.75-.75"></path>
+                    <path fill="currentColor" fill-rule="evenodd" d="M7.317 3.769a42.5 42.5 0 0 1 9.366 0c1.827.204 3.302 1.643 3.516 3.48c.37 3.157.37 6.346 0 9.503c-.215 1.837-1.69 3.275-3.516 3.48a42.5 42.5 0 0 1-9.366 0c-1.827-.205-3.302-1.643-3.516-3.48a41 41 0 0 1 0-9.503c.214-1.837 1.69-3.276 3.516-3.48m9.2 1.49a41 41 0 0 0-9.034 0A2.486 2.486 0 0 0 5.29 7.424a39.4 39.4 0 0 0 0 9.154a2.486 2.486 0 0 0 2.193 2.164c2.977.332 6.057.332 9.034 0a2.486 2.486 0 0 0 2.192-2.164a39.4 39.4 0 0 0 0-9.154a2.486 2.486 0 0 0-2.192-2.163" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="conversation-list" class="conversation-list" role="listbox" aria-label="Conversations">
+            <!-- Conversation items will be rendered here -->
+        </div>
+    </aside>
+    <div class="app-container">
+
+        <main>
+            <div class="chat-container">
+                <!-- Landing overlay for agent selection -->
+                <section id="agent-landing" class="agent-landing" aria-label="Select an agent">
+                    <div class="landing-card">
+                        <div class="landing-avatar">
+                            <img src="assets/female-2.webp" alt="Assistant Avatar" />
+                        </div>
+                        <div class="landing-title">WizardDesigner</div>
+                        <div class="landing-desc">Guides users from brand name to mockup and booking.</div>
+                        <div class="chips-row">
+                            <button class="agent-chip" data-agent="agentic" aria-label="Agentic">Agentic</button>
+                            <button class="agent-chip" data-agent="schedule" aria-label="Schedule Meeting">Schedule Meeting</button>
+                        </div>
+                        <button class="featured-chip" id="landing-featured" data-msg="I want to build my brand">I want to build my brand</button>
+                        <div class="agent-grid" role="grid">
+                            <button class="agent-chip" data-agent="travel" aria-label="Travel Agent">Travel Agent</button>
+                            <button class="agent-chip" data-agent="content-enrichment" aria-label="Content Enrichment Agent">Content Enrichment Agent</button>
+                            <button class="agent-chip" data-agent="marketing-performance" aria-label="Marketing Performance Agent">Marketing Performance Agent</button>
+                            <button class="agent-chip" data-agent="inbox-calendar" aria-label="Inbox + Calendar Agent">Inbox + Calendar Agent</button>
+                            <button class="agent-chip" data-agent="copywriting" aria-label="Copywriting Agent">Copywriting Agent</button>
+                            <button class="agent-chip" data-agent="design" aria-label="Design Agent">Design Agent</button>
+                            <button class="agent-chip" data-agent="ugc-video" aria-label="UGC/AI Video Agent">UGC/AI Video Agent</button>
+                            <button class="agent-chip" data-agent="exec-reporting" aria-label="Executive Reporting Agent">Executive Reporting Agent</button>
+                            <button class="agent-chip" data-agent="router" aria-label="Agent Router/Controller">Agent Router/Controller</button>
+                            <button class="agent-chip" data-agent="memory-preference" aria-label="Memory/Preference Agent">Memory/Preference Agent</button>
+                        </div>
+
+                    </div>
+                </section>
+                <div id="chat-messages" class="chat-messages hidden"></div>
+                <!-- CopilotKit-style footer suggestions, positioned above the input -->
+                <div class="copilotKitMessagesFooter hidden" id="copilotkit-footer-legacy" aria-label="Suggestions" style="display:none">
+                    <button class="suggestion-chip" data-msg="Analyze my Instagram @influencer and suggest a brand direction">Analyze Instagram → brand direction</button>
+                    <button class="suggestion-chip" data-msg="Help me choose a brand name and check domain availability">Pick a brand name + check domains</button>
+                    <button class="suggestion-chip" data-msg="Suggest a color palette with HEX codes for a wellness brand">Suggest color palette (HEX)</button>
+                    <button class="suggestion-chip" data-msg="Generate three logo ideas for my brand">Generate logo ideas</button>
+                    <button class="suggestion-chip" data-msg="Recommend products to sell based on my brand">Recommend products to sell</button>
+                    <button class="suggestion-chip" data-msg="Analyze competitors and propose differentiation">Analyze competitors → differentiation</button>
+                    <button class="suggestion-chip" data-msg="Estimate profit if cost is 12, price is 29, units 120">Estimate profit</button>
+                    <button class="suggestion-chip" data-msg="Book a call next week Tuesday 3pm">Book a call</button>
+                    <button class="suggestion-chip" data-msg="Create a purple-themed palette and usage roles">Purple palette with roles</button>
+                    <button class="suggestion-chip danger" id="clear-chat">Clear chat</button>
+                </div>
+                    <!-- <div id="generated-number" class="generated-number hidden" aria-live="polite">
+                        <span class="badge MuiTypography-root MuiTypography-caption shining-left css-z5ufvz" title="Last generation time">Generated in —</span>
+                    </div> -->
+                <div class="input-container">
+                    <div class="input-field-wrapper">
+                        <textarea id="user-input" placeholder="Type your message..."></textarea>
+                    <input type="file" id="file-input" multiple style="display:none" />
+                    <button id="attach-button" class="icon-btn" title="Attach" aria-label="Attach file">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="component-iconify MuiBox-root css-9uy14h iconify iconify--eva" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22a5.86 5.86 0 0 1-6-5.7V6.13A4.24 4.24 0 0 1 10.33 2a4.24 4.24 0 0 1 4.34 4.13v10.18a2.67 2.67 0 0 1-5.33 0V6.92a1 1 0 0 1 1-1a1 1 0 0 1 1 1v9.39a.67.67 0 0 0 1.33 0V6.13A2.25 2.25 0 0 0 10.33 4A2.25 2.25 0 0 0 8 6.13V16.3a3.86 3.86 0 0 0 4 3.7a3.86 3.86 0 0 0 4-3.7V6.13a1 1 0 1 1 2 0V16.3a5.86 5.86 0 0 1-6 5.7"></path></svg>
+                    </button>
+                    <button id="voice-button" class="icon-btn" title="Voice" aria-label="Voice input">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="component-iconify MuiBox-root css-7l126h iconify iconify--icon-park-solid" width="1em" height="1em" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="4"><rect width="14" height="27" x="17" y="4" fill="currentColor" rx="7"></rect><path stroke-linecap="round" d="M9 23c0 8.284 6.716 15 15 15s15-6.716 15-15M24 38v6"></path></g></svg>
+                    </button>
+                    <button id="stop-button" class="stop-btn" title="Stop" aria-label="Stop generation" style="display:none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                            <path d="M4.5 2C3.11929 2 2 3.11929 2 4.5V19.5C2 20.8807 3.11929 22 4.5 22H19.5C20.8807 22 22 20.8807 22 19.5V4.5C22 3.11929 20.8807 2 19.5 2H4.5Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <button id="send-button" aria-label="Send message" title="Send">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="component-iconify MuiBox-root css-1n9wuna iconify iconify--mingcute" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none"><path d="m12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036q-.016-.004-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z"></path><path fill="currentColor" d="M20.235 5.686c.432-1.195-.726-2.353-1.921-1.92L3.709 9.048c-1.199.434-1.344 2.07-.241 2.709l4.662 2.699l4.163-4.163a1 1 0 0 1 1.414 1.414L9.544 15.87l2.7 4.662c.638 1.103 2.274.957 2.708-.241z"></path></g></svg>                    </button>
+                    <div id="ai-status" class="ai-status" aria-live="polite" aria-atomic="true" style="display:none">
+                        <span class="dot"></span>
+                        <span class="text">Responding...</span>
+                    </div>
+
+                        <!-- CopilotKit footer moved inside input wrapper for in-textarea positioning -->
+                        <div class="copilotKitMessagesFooter" id="copilotkit-footer" aria-label="Suggestions">
+                            <button class="carousel-arrow prev" aria-label="Previous">‹</button>
+                            <div class="footer-carousel">
+                                <div class="footer-carousel-track"></div>
+                            </div>
+                            <button class="carousel-arrow next" aria-label="Next">›</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js?v=4" id="app-script"></script>
+    <script>
+    // Force-load latest CSS/JS in dev to avoid stale cache
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            var sheet = document.getElementById('app-styles');
+            if (sheet) {
+                var sep = sheet.href.indexOf('?') === -1 ? '?' : '&';
+                sheet.href = sheet.href + sep + 't=' + Date.now();
+            }
+            var script = document.getElementById('app-script');
+            if (script) {
+                var sep2 = script.src.indexOf('?') === -1 ? '?' : '&';
+                script.src = script.src + sep2 + 't=' + Date.now();
+            }
+        } catch (e) {
+            console.warn('Cache-bust script error:', e);
+        }
+    });
+    </script>
+</body>
+</html>

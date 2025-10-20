@@ -1,0 +1,212 @@
+{
+  "username": "thefreshprinceofsandiego",
+  "session_id": "dee1bbaa",
+  "saved_at": "2025-10-17T07:59:21.380911",
+  "analysis": {
+    "inferred_archetype": {
+      "name": "Aesthetic Lifestyle Males",
+      "confidence_0_1": 0.85,
+      "rationale": "The influencer showcases a visually appealing lifestyle with a focus on travel and aesthetics, attracting a primarily female audience who admire his looks and lifestyle."
+    },
+    "archetype_candidates": [
+      {
+        "name": "Beauty & Lifestyle",
+        "confidence_0_1": 0.65
+      }
+    ],
+    "influencer_persona": {
+      "name_unknown_ok": "Unknown Male Influencer",
+      "role": "Lifestyle Influencer",
+      "traits": [
+        "charismatic",
+        "adventurous",
+        "stylish",
+        "inspiring"
+      ]
+    },
+    "visual_style": {
+      "dress_description": "Trendy casual wear, often featuring stylish accessories and relaxed fits.",
+      "common_color_palettes": "Earth tones, soft pastels, and vibrant colors reflecting travel destinations.",
+      "styling_vibe_tags": [
+        "luxury",
+        "adventurous",
+        "trendy",
+        "aesthetic"
+      ]
+    },
+    "synthesis_sentences": [
+      "The influencer embodies a luxurious lifestyle that many aspire to emulate.",
+      "Followers admire his stunning travel visuals and seek to experience similar adventures.",
+      "He often showcases products that enhance beauty and wellness, such as collagen and protein supplements.",
+      "Many aspire to achieve his level of style and charisma in their own lives.",
+      "Followers are likely to purchase premium skincare and health products to look and feel their best.",
+      "His posts inspire a sense of wanderlust and a desire for aesthetic living.",
+      "The influencer's lifestyle promotes confidence and self-care through beauty products.",
+      "His audience often seeks tips on how to curate their own aesthetic lifestyles.",
+      "Supplement products like beauty gummies and collagen are popular among his followers.",
+      "The influencer\u2019s visuals encourage a blend of health, beauty, and adventure."
+    ],
+    "audience_alignment": {
+      "referent_audience": {
+        "who": "Young women aged 18-30",
+        "demographics": "Primarily female, interested in beauty, travel, and lifestyle aesthetics.",
+        "why_they_want_to_be_like_them": "They aspire to his level of style, confidence, and adventurous spirit."
+      },
+      "admirer_audience": {
+        "who": "Mixed audience interested in lifestyle content",
+        "demographics": "Both men and women aged 18-40.",
+        "why_they_follow": "They appreciate his aesthetic and engaging content."
+      },
+      "real_product_consumers": {
+        "who": "Women aged 18-30 looking to enhance their beauty and lifestyle",
+        "demographics": "Primarily young women who want to improve their aesthetics.",
+        "rationale": "They are motivated to purchase products that align with the influencer's lifestyle."
+      }
+    },
+    "recommended_product_types": [
+      "Collagen supplements",
+      "Beauty gummies",
+      "Protein powders",
+      "Vitamins for skin health",
+      "Luxury skincare products",
+      "Hair care supplements",
+      "Adaptogens for wellness",
+      "Premium green superfoods",
+      "Travel-friendly health snacks"
+    ],
+    "marketing_angle": "Elevate your lifestyle and beauty with products that inspire confidence.",
+    "brand_design_guidance": {
+      "sentiment": "Luxurious, aspirational, and vibrant.",
+      "tone_words": [
+        "stylish",
+        "adventurous",
+        "inspiring"
+      ],
+      "typography": {
+        "primary": "Sans-serif for modern appeal",
+        "secondary": "Serif for elegance"
+      },
+      "color_palette_hex": {
+        "primary": "#FF6F61",
+        "secondary": "#6B5B95",
+        "accent": "#88B04B",
+        "neutral": "#F7F7F7"
+      },
+      "color_roles": [
+        {
+          "hex": "#FF6F61",
+          "role_primary_secondary_accent_neutral": "primary"
+        },
+        {
+          "hex": "#6B5B95",
+          "role_primary_secondary_accent_neutral": "secondary"
+        },
+        {
+          "hex": "#88B04B",
+          "role_primary_secondary_accent_neutral": "accent"
+        },
+        {
+          "hex": "#F7F7F7",
+          "role_primary_secondary_accent_neutral": "neutral"
+        }
+      ],
+      "color_usage": [
+        {
+          "hex": "#FF6F61",
+          "usage_contexts": "headers, CTAs",
+          "ratio_approx_percent": 40
+        },
+        {
+          "hex": "#6B5B95",
+          "usage_contexts": "backgrounds, packaging front",
+          "ratio_approx_percent": 30
+        },
+        {
+          "hex": "#88B04B",
+          "usage_contexts": "accents, highlights",
+          "ratio_approx_percent": 20
+        },
+        {
+          "hex": "#F7F7F7",
+          "usage_contexts": "neutral backgrounds, text",
+          "ratio_approx_percent": 10
+        }
+      ],
+      "logo_guidelines": {
+        "style_keywords": [
+          "clean",
+          "modern",
+          "elegant"
+        ],
+        "iconography_recommendations": "Use abstract shapes or nature-inspired motifs.",
+        "typography_pairing": "Sans-serif for logo name, serif for tagline.",
+        "safe_area_clearspace_rules": "Maintain a clear space equal to the height of the logo around all sides.",
+        "lockup_recommendations": "Horizontal layout preferred for versatility.",
+        "background_contrast_rules": "Ensure high contrast for visibility on all backgrounds.",
+        "do": [
+          "Keep it simple",
+          "Use a limited color palette",
+          "Focus on readability"
+        ],
+        "dont": [
+          "Use overly complex designs",
+          "Include too many colors",
+          "Neglect scalability"
+        ]
+      },
+      "imagery_guidelines": "Use high-quality, visually appealing images that reflect adventure and luxury.",
+      "packaging_notes": "Opt for eco-friendly materials with a premium feel."
+    },
+    "brand_naming_guidelines": {
+      "naming_philosophy": "Names should evoke a sense of luxury and adventure while being memorable.",
+      "style_keywords": [
+        "luxury",
+        "adventure",
+        "wellness",
+        "beauty"
+      ],
+      "word_categories": {
+        "latin_derived": [
+          "vita",
+          "luxe",
+          "aura"
+        ],
+        "modern_tech": [
+          "bio",
+          "nu",
+          "vibe"
+        ],
+        "wellness_nature": [
+          "flora",
+          "essence",
+          "pure"
+        ],
+        "luxury_premium": [
+          "elite",
+          "premium",
+          "select"
+        ],
+        "performance_energy": [
+          "boost",
+          "charge",
+          "thrive"
+        ]
+      },
+      "naming_patterns": [
+        "[Adjective] + [Noun]",
+        "[Noun] + [Action]"
+      ],
+      "syllable_preference": "2-3 syllables for easy recall.",
+      "cultural_considerations": [
+        "Ensure names resonate across cultures, avoiding negative connotations."
+      ],
+      "avoid_words": [
+        "cheap",
+        "basic",
+        "ordinary"
+      ],
+      "brand_voice_alignment": "Maintain an aspirational, yet approachable tone.",
+      "influencer_alignment": "Names should reflect the influencer's aesthetic and lifestyle, appealing to their audience's aspirations."
+    }
+  }
+}

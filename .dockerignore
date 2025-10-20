@@ -1,0 +1,29 @@
+# VCS and editor files
+.git
+.gitignore
+.cursor/
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Environment and secrets
+.env
+.env.template
+
+# Build caches and outputs (mounted at runtime)
+outputs/
+cache/
+
+# Node/Frontend
+node_modules/
+frontend/.cache/
+**/*.map
+
+# Docker
+Dockerfile*
+docker-compose*.yml
