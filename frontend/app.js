@@ -164,12 +164,17 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const hasHistory = Array.isArray(history) && history.length > 0;
             const chatEl = document.getElementById('chat-messages');
+            const inputEl = document.querySelector('.input-container');
             if (hasHistory) {
                 chatEl?.classList.remove('hidden');
                 if (agentLanding) agentLanding.classList.add('hidden');
+                // Ensure input is visible when chat has content
+                inputEl?.classList.remove('hidden');
             } else {
                 chatEl?.classList.add('hidden');
                 if (agentLanding) agentLanding.classList.remove('hidden');
+                // Hide input area when landing card is visible
+                inputEl?.classList.add('hidden');
             }
         } catch (e) { /* no-op */ }
     };
@@ -298,6 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             if (agentLanding) agentLanding.classList.remove('hidden');
             document.getElementById('chat-messages')?.classList.add('hidden');
+            // Hide input area while landing card is visible
+            document.querySelector('.input-container')?.classList.add('hidden');
         } catch (e) { /* no-op */ }
         
         userInput.value = '';
@@ -513,9 +520,46 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hide CopilotKit footer with animation
     function hideCopilotFooter() {
         if (!suggestions) return;
-        // Keep footer always visible
+        // Smoothly hide footer suggestions
+        suggestions.classList.add('footer-hidden');
+        suggestions.classList.remove('footer-show');
+        updateToggleButtonState(false);
+    }
+
+    // Show CopilotKit footer with animation
+    function showCopilotFooter() {
+        if (!suggestions) return;
+        // Smoothly show footer suggestions
         suggestions.classList.remove('footer-hidden');
-        suggestions.classList.remove('hidden');
+        suggestions.classList.add('footer-show');
+        updateToggleButtonState(true);
+    }
+
+    // Toggle CopilotKit footer visibility
+    function toggleCopilotFooter() {
+        if (!suggestions) return;
+        const isHidden = suggestions.classList.contains('footer-hidden');
+        if (isHidden) {
+            showCopilotFooter();
+        } else {
+            hideCopilotFooter();
+        }
+    }
+
+    // Update toggle button visual state
+    function updateToggleButtonState(isVisible) {
+        const toggleBtn = document.getElementById('footer-toggle-btn');
+        if (!toggleBtn) return;
+        
+        if (isVisible) {
+            toggleBtn.classList.add('footer-visible');
+            toggleBtn.classList.remove('footer-hidden');
+            toggleBtn.title = 'Hide suggestions';
+        } else {
+            toggleBtn.classList.add('footer-hidden');
+            toggleBtn.classList.remove('footer-visible');
+            toggleBtn.title = 'Show suggestions';
+        }
     }
 
     // Assistant avatar persistence
@@ -533,6 +577,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial load adjustments
     loadAssistantAvatar();
+    // Hide input while landing overlay is visible on initial load
+    try {
+        if (agentLanding && !agentLanding.classList.contains('hidden')) {
+            document.querySelector('.input-container')?.classList.add('hidden');
+        }
+    } catch (e) { /* no-op */ }
+
+    // Initialize toggle button state based on footer visibility
+    try {
+        const isFooterHidden = suggestions && suggestions.classList.contains('footer-hidden');
+        updateToggleButtonState(!isFooterHidden);
+    } catch (e) { /* no-op */ }
     // Agent selection + landing overlay
     let selectedAgent = null;
     function setSuggestionsForAgent(agent) {
@@ -1041,33 +1097,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             try {
                                 const promptText = meta && meta.prompt ? String(meta.prompt) : '';
                                 const brandHit = isCodeyAzielFrom(promptText) || isCodeyAzielFrom(publicPath);
-                                if (brandHit) {
+                                const pathLower = String(publicPath || '').toLowerCase();
+                                const isLogoPath = /\/outputs\/logos\//i.test(pathLower);
+                                if (brandHit || isLogoPath) {
                                     const expl = document.createElement('div');
                                     expl.className = 'logo-explanation';
-                                    expl.innerHTML = `
-                                        <strong>Codey Aziel — Tech Logo</strong>
-                                        <ul>
-                                            <li>Iconography hints at code and circuitry for a tech-forward feel.</li>
-                                            <li>Green (#00A36C) with dark green (#0F5B3E) communicates growth and reliability.</li>
-                                            <li>Clean sans-serif wordmark ensures legibility across sizes.</li>
-                                            <li>Transparent background and balanced spacing ease placement in mockups.</li>
-                                        </ul>
-                                    `;
+                                    const p = document.createElement('p');
+                                    p.textContent = 'I chose this logo for its clean, modern feel and balanced composition. The color choice aligns with the brand\'s personality and helps it stand out confidently.';
+                                    expl.appendChild(p);
                                     imgContainer.appendChild(expl);
-                                } else {
-                                    const generic = document.createElement('div');
-                                    generic.className = 'logo-explanation';
-                                    const isGenerated = /\/outputs\//i.test(String(publicPath));
-                                    const fileName = String(publicPath || '').split('/').pop();
-                                    generic.innerHTML = `
-                                        <strong>Image Explanation</strong>
-                                        <ul>
-                                            <li>${isGenerated ? 'Generated by the assistant' : 'User-provided or external image'}</li>
-                                            <li>File: ${fileName || '—'}</li>
-                                            <li>Optimized for clear contrast and balanced composition.</li>
-                                        </ul>
-                                    `;
-                                    imgContainer.appendChild(generic);
                                 }
                             } catch (e) { /* no-op */ }
                         };
@@ -1327,6 +1365,8 @@ document.addEventListener('DOMContentLoaded', () => {
     async function sendMessage() {
         const message = userInput.value.trim();
         if (!message) return;
+        // Auto-hide footer when a chat session begins
+        hideCopilotFooter();
 
         // Rename active conversation from default on first user message
         try {
@@ -1461,6 +1501,16 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch(e) { /* no-op */ }
         });
     }
+
+    // Footer toggle button
+    const footerToggleBtn = document.getElementById('footer-toggle-btn');
+    if (footerToggleBtn) {
+        footerToggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleCopilotFooter();
+        });
+    }
     
     userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -1503,6 +1553,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Global click anywhere hides CopilotKit footer (except toggle button and footer itself)
+    document.addEventListener('click', (ev) => {
+        const target = ev.target;
+        // Don't hide if clicking on toggle button or footer
+        if (target && (
+            target.closest('#footer-toggle-btn') || 
+            target.closest('#copilotkit-footer')
+        )) {
+            return;
+        }
+        hideCopilotFooter();
+    });
 
 
     // Hide footer on downward scroll of chat messages

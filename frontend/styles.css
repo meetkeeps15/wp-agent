@@ -362,7 +362,6 @@ main {
 #user-input {
     flex: 1;
     width: 100%;
-    padding: 12px 14px;
     border: 1px solid var(--border-color);
     border-radius: 10px;
     font-size: var(--font-size-base);
@@ -374,8 +373,10 @@ main {
     line-height: 1.5;
     background-color: #f7f7f8;
     box-shadow: 0 0 6px rgba(0,0,0,0.04);
-    padding-right: 224px; /* keep text clear of four 40px buttons with spacing */
+    padding-right: 40px; /* keep text clear of four 40px buttons with spacing */
     padding-bottom: 56px; /* make sure icons sit within the text area */
+    padding-left:20px ;
+    padding-top:10px ;
 }
 
 #user-input:focus {
@@ -404,7 +405,7 @@ main {
     position: absolute;
     right: 1%;
     bottom: 14px;
-    z-index: 1000;
+    z-index: 0;
 }
 
 #send-button:hover { color: #374151; }
@@ -762,7 +763,7 @@ main {
     border: none;
     border-radius: 999px;
     padding: var(--space-2) var(--space-3);
-    background: #f7f7f8;
+    background: #dbdbdb78;
     color: var(--text-color);
     font-size: var(--font-size-sm);
     cursor: pointer;
@@ -778,6 +779,63 @@ main {
     transform: translate(-50%, 6px);
     visibility: hidden;
     pointer-events: none;
+}
+
+/* Footer toggle button */
+.footer-toggle-btn {
+	position: absolute;
+	top: -35px;
+	left: -1px;
+	width: 28px;
+	height: 28px;
+	border: none;
+	border-radius: 50%;
+	background: var(--bg-color, #ffffff);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	transition: all 0.2s ease;
+	border: 1px solid var(--border-color, #e5e7eb);
+}
+
+.footer-toggle-btn:hover {
+    background: var(--hover-bg, #f9fafb);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.footer-toggle-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.footer-toggle-btn .toggle-arrow {
+    transition: transform 0.25s ease;
+    color: var(--text-color, #374151);
+}
+
+/* Arrow rotation states */
+.footer-toggle-btn.footer-visible .toggle-arrow {
+    transform: rotate(180deg);
+}
+
+.footer-toggle-btn.footer-hidden .toggle-arrow {
+    transform: rotate(0deg);
+}
+
+/* Enhanced footer animations */
+.copilotKitMessagesFooter {
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+}
+
+.copilotKitMessagesFooter.footer-show {
+    opacity: 1;
+    transform: translateX(-50%);
+    visibility: visible;
+    pointer-events: auto;
 }
 .sidebar.collapsed #sidebar-toggle {
 	display: inline-flex;
@@ -907,10 +965,11 @@ main {
 	gap: 8px;
 	padding: 8px 0 4px;
 	width: 100%;
-	z-index: 99999;
+	z-index: 9;
 	position: absolute;
-	bottom: 5px !important;
-	max-width: 60%;
+	top: -49px;
+	max-width: 100%;
+	background: #ffff;
 }
 .input-container .copilotKitMessagesFooter .suggestion-chip {
   flex: 0 0 auto;

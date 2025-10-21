@@ -164,4 +164,9 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
-\n# Project-specific ignores\n.env\noutputs/\ncache/\n.agency_swarm_chats.zip\n
+
+# Project-specific ignores
+.env
+outputs/
+cache/
+.agency_swarm_chats.zip

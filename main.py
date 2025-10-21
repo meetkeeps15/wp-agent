@@ -67,14 +67,18 @@ for route in api_server.app.routes:
 
 # Mount static files for the frontend
 try:
-    app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-    
-    # Mount the outputs directory for logo images
+    # IMPORTANT: mount more specific prefixes BEFORE mounting root "/"
+    # so that assets like /outputs/... and /generated_images/... are served correctly.
+
+    # Mount the outputs directory for palette swatches and logos
     app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
-    
-    # Mount the cache directory for generated images
+
+    # Mount the cache directory for generated logo metadata/images
     app.mount("/generated_images", StaticFiles(directory="cache/generated_images"), name="generated_images")
-    
+
+    # Finally mount the frontend root
+    app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+
     # Mount specific logo directories to ensure they're accessible
     try:
         import os
