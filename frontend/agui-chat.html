@@ -33,6 +33,19 @@
     .assistant-meta { margin-top: 6px; display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; }
     .small { font-size: 12px; color: var(--muted); }
     .hidden { display: none; }
+    /* Progress card styles */
+    .progress-card { border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.04); margin: 8px 0 12px; }
+    .progress-header { display: flex; align-items: center; justify-content: space-between; padding: 12px; font-weight: 600; }
+    .progress-header .title { color: #6f2bf0; }
+    .progress-header .count { color: var(--muted); font-size: 12px; }
+    .progress-bar-wrap { height: 6px; background: #eef2ff; margin: 0 12px 10px; border-radius: 999px; overflow: hidden; }
+    .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #6f2bf0, #34d399); transition: width 200ms ease; }
+    .progress-steps { display: grid; gap: 8px; padding: 0 12px 12px; }
+    .progress-step { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; background: #f8fafc; }
+    .progress-step.running { background: #fafafc; }
+    .progress-step.complete { background: #ecfdf5; }
+    .progress-step .icon { width: 18px; height: 18px; border-radius: 999px; border: 2px solid #cbd5e1; background: #fff; }
+    .progress-step.complete .icon { background: #34d399; border-color: #10b981; }
   </style>
 </head>
 <body>
@@ -62,6 +75,75 @@
     const API_ORIGIN = window.API_ORIGIN || 'http://127.0.0.1:8080';
 
     const history = [];
+
+    // Progress card state and helpers
+    let progressCard = null;
+    let progressBar = null;
+    let progressCount = null;
+    let progressStepsWrap = null;
+    const stepMap = new Map();
+
+    function ensureProgressCard(title, total) {
+      if (!progressCard) {
+        progressCard = document.createElement('div');
+        progressCard.className = 'progress-card';
+        progressCard.innerHTML = `
+          <div class="progress-header">
+            <div class="title">${title || 'Task Progress'}</div>
+            <div class="count"><span id="pcount">0/${total} Complete</span></div>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar" id="pbar"></div></div>
+          <div class="progress-steps" id="psteps"></div>
+        `;
+        chat.appendChild(progressCard);
+        chat.scrollTop = chat.scrollHeight;
+        progressBar = progressCard.querySelector('#pbar');
+        progressCount = progressCard.querySelector('#pcount');
+        progressStepsWrap = progressCard.querySelector('#psteps');
+      } else {
+        // update header
+        const ttlEl = progressCard.querySelector('.progress-header .title');
+        ttlEl.textContent = title || 'Task Progress';
+        progressCount.textContent = `0/${total} Complete`;
+        progressBar.style.width = '0%';
+        stepMap.clear();
+        progressStepsWrap.innerHTML = '';
+      }
+      progressCard.dataset.total = String(total || 0);
+    }
+
+    function upsertStep(id, title, status) {
+      let row = stepMap.get(id);
+      if (!row) {
+        row = document.createElement('div');
+        row.className = 'progress-step';
+        row.innerHTML = `<div class="icon"></div><div class="txt"></div>`;
+        stepMap.set(id, row);
+        progressStepsWrap.appendChild(row);
+      }
+      row.classList.remove('running', 'complete');
+      if (status === 'running') row.classList.add('running');
+      if (status === 'complete') row.classList.add('complete');
+      const txt = row.querySelector('.txt');
+      txt.textContent = title || id;
+
+      // update count + bar on complete
+      if (status === 'complete') {
+        const total = Number(progressCard?.dataset?.total || 0);
+        const completed = [...stepMap.values()].filter(r => r.classList.contains('complete')).length;
+        progressCount.textContent = `${completed}/${total} Complete`;
+        const pct = total ? Math.round((completed/total)*100) : 0;
+        progressBar.style.width = pct + '%';
+      }
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function finalizeProgress(completed, total) {
+      if (!progressCard) return;
+      const pct = total ? Math.round((completed/total)*100) : 100;
+      progressBar.style.width = pct + '%';
+      progressCount.textContent = `${completed}/${total} Complete`;
+    }
 
     function addRow(role, html, metaText) {
       const row = document.createElement('div');
@@ -131,6 +213,23 @@
             const jsonStr = line.slice(5).trim();
             try {
               const payload = JSON.parse(jsonStr);
+              const t = payload.type;
+              if (t === 'progress_init') {
+                ensureProgressCard(payload.title, payload.total);
+                continue;
+              }
+              if (t === 'progress_step') {
+                upsertStep(payload.id, payload.title, payload.status);
+                continue;
+              }
+              if (t === 'progress_complete') {
+                finalizeProgress(payload.completed, payload.total);
+                continue;
+              }
+              if (t === 'error') {
+                addRow('assistant', renderText('Error: ' + (payload.message || 'Unknown error')));
+                continue;
+              }
               const chunk = payload.chunk || payload.response || '';
               const doneFlag = payload.done === true;
               if (chunk) {

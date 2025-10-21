@@ -30,6 +30,15 @@
     --font-size-lg: 12px;
     --thinking-speed-ms: 60; /* default per-word animation speed in ms */
     --typing-word-speed-ms: 45; /* assistant message per-word typing speed in ms */
+    /* Progress card colors */
+    --progress-primary: #6f2bf0;
+    --progress-success: #34d399;
+    --progress-success-border: #10b981;
+    --progress-bg: #eef2ff;
+    --progress-step-bg: #f8fafc;
+    --progress-step-running: #fafafc;
+    --progress-step-complete: #ecfdf5;
+    --progress-icon-border: #cbd5e1;
 }
 
 * {
@@ -329,7 +338,14 @@ main {
     gap: 8px;
     align-items: stretch;
 }
-
+.icon-btn.conv-menu {
+	right: 0;
+	top: 0;
+	bottom: 0;
+	margin: auto;
+	z-index: 0;
+	font-size: 10px;
+}
 /* Input action buttons */
 .icon-btn {
     width: 40px;
@@ -576,40 +592,45 @@ main {
     padding: 2px 6px;
 }
 
-/* Message meta: generation time + actions */
+/* Message meta footer */
+.message-row.user .message-meta {
+  justify-content: flex-end;
+  text-align: right;
+}
+.message-row.assistant .message-meta {
+  justify-content: flex-start;
+  text-align: left;
+}
 .message-meta {
-    margin-top: 6px;
-    font-size: var(--font-size-base);
-    color: #6b7280;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 6px 0 0;
+  color: #6b7280; /* gray-500 */
+  font-size: var(--font-size-sm);
 }
 .message-meta .time-ago {
-    color: #6b7280;
+  font-size: var(--font-size-sm);
+  opacity: 0.75;
 }
-.message-row.user .message-meta { justify-content: flex-end; }
-.message-row.assistant .message-meta { justify-content: flex-start; }
-
-/* Compact copy icon */
 .copy-btn {
-    border: none;
-    background: transparent;
-    color: #6b7280;
-    cursor: pointer;
-    font-size: var(--font-size-base);
-    line-height: 1;
-    padding: 2px;
-    border-radius: 6px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: color .2s ease, background .2s ease, transform .08s ease-in-out;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  border-radius: 6px;
+  padding: 2px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  transition: background .15s ease, color .15s ease, transform .06s ease;
 }
-.copy-btn:hover { color: #374151; background: #f3f4f6; }
-.copy-btn:active { transform: scale(0.96); }
-.copy-btn.copied { color: var(--primary-color); }
+.copy-btn:hover { background: #f3f4f6; color: #374151; }
+.copy-btn:active { transform: scale(0.98); }
 .copy-btn svg { width: 1.1em; height: 1.1em; }
+.copy-btn.copied { background: #ecfdf5; color: #065f46; }
 
 /* Minimal table styling for structured outputs */
 .message table {
@@ -1032,163 +1053,33 @@ main {
   transform: translateY(6px);
 }
 
-/* Compact Sidebar conversation list using MUI-like classes */
-.conversation-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-top: 4px;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 12px;
-}
-
-/* Base card style aligned with Custom GPT reference */
-.MuiPaper-root.MuiCard-root.MuiStack-root.css-had6so,
-.conversation-item {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  background: #fff;
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 10px 12px;
-  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
-}
-
-.conversation-item:hover { background: #f8f9fb; border-color: #e5e7eb; }
-.conversation-item.active { border-color: var(--primary-color); box-shadow: 0 2px 8px rgba(17,24,39,0.06); }
-
-.conversation-item .left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1 1 auto;
-}
-
-.conversation-item .conv-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  object-fit: cover;
-  border: 1px solid #e5e7eb;
-}
-
-.conversation-item .conv-title {
-  font-size: 14px;
-  color: #111827;
-}
-
-/* Inline rename input styling */
-.conversation-item .conv-title-input {
-  font-size: 14px;
-  color: #111827;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 6px 8px;
-  background: #fff;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.conversation-item .conv-menu.icon-btn { width: 30px; height: 30px; border-radius: 8px; }
-.conversation-item .conv-menu.icon-btn svg { width: 16px; height: 16px; }
-.conversation-item .conv-delete.icon-btn { width: 30px; height: 30px; border-radius: 8px; }
-.conversation-item .conv-delete.icon-btn svg { width: 16px; height: 16px; }
-.conversation-item .conv-delete { color: #6b7280; }
-.conversation-item .conv-delete:hover { background: #f3f4f6; color: #ef4444; }
-
-/* Keep alignment tidy in collapsed sidebar */
-.sidebar.collapsed .conversation-list { display: none; }
-.conversation-item .conv-menu.icon-btn { width: 30px; height: 30px; border-radius: 8px; }
-.conversation-item .conv-menu.icon-btn svg { width: 16px; height: 16px; }
-
-/* Conversation dropdown menu */
-.conversation-item { position: relative; }
-.conversation-item .conv-menu { position: absolute; top: 8px; right: 8px; z-index: 2; }
-.conversation-item .conv-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 40px; }
-.conv-dropdown {
-  position: absolute;
-  right: 8px;
-  top: calc(100% + 6px);
-  min-width: 140px;
-  background: #fff;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: 0 8px 16px rgba(17,24,39,0.08);
-  padding: 6px;
-  display: none;
-  z-index: 10;
-}
-.conv-dropdown.show { display: block; }
-.conv-dropdown .dropdown-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: transparent;
-  border: none;
-  padding: 8px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  color: #374151;
-}
-.conv-dropdown .dropdown-item:hover { background: #f3f4f6; }
-
-/* Keep alignment tidy in collapsed sidebar */
-.sidebar.collapsed .conversation-list { display: none; }
-.footer-carousel::-webkit-scrollbar { display: none; }
-
-/* Subtle side fades for suggestions carousel */
-.footer-carousel::before,
-.footer-carousel::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 24px;
+/* Generating state - disable interactions and visually indicate restrictions */
+body.generating .conversation-list,
+.conversation-list.generating {
   pointer-events: none;
-  z-index: 2;
 }
-/* .footer-carousel::before {
-  left: 0;
-  background: linear-gradient(to right, var(--input-background), rgba(255,255,255,0));
-}
-.footer-carousel::after {
-  right: 0;
-  background: linear-gradient(to left, var(--input-background), rgba(255,255,255,0));
-} */
+body.generating .conversation-list .conversation-item { cursor: not-allowed; opacity: 0.6; }
+body.generating .conv-menu, body.generating .conv-dropdown { pointer-events: none; opacity: 0.6; }
+body.generating .toggle-btn.icon-btn,
+body.generating .plus-btn.icon-btn { pointer-events: none; cursor: not-allowed; opacity: 0.5; }
 
-.footer-carousel-track {
-  display: flex;
-  gap: 8px;
-  padding: 0 4px;
+body.generating .input-container { opacity: 0.85; }
+body.generating .input-container button:not(#stop-button),
+.input-container.generating button:not(#stop-button) {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
-.carousel-arrow {
-  border: none;
-  background: transparent;
-  color: #6b7280;
-  cursor: pointer;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: color .2s ease, background .2s ease, transform .08s ease-in-out;
-  flex: 0 0 auto;
-}
-.carousel-arrow:hover { color: #374151; background: #f3f4f6; }
-.carousel-arrow:active { transform: scale(0.98); }
-
-/* Override hidden transform when footer is inside input container */
-.input-container .copilotKitMessagesFooter.footer-hidden {
-  transform: translateY(6px);
-}
+/* Disable meta actions during generation */
+body.generating .message-meta .copy-btn,
+body.generating .message-meta .regen-btn { pointer-events: none; cursor: not-allowed; opacity: 0.5; }
+/* Disable suggestions and carousel controls during generation */
+body.generating .suggestion-chip,
+body.generating .carousel-arrow,
+body.generating .footer-carousel-track { pointer-events: none; }
+body.generating .suggestion-chip,
+body.generating .carousel-arrow { cursor: not-allowed; opacity: 0.5; }
 /* Sidebar header layout and plus button positioning */
 .sidebar-header {
   display: flex;
@@ -1236,6 +1127,99 @@ width: 0;
 
 /* Body padding when collapsed */
 body.sidebar-collapsed { padding-left: 88px; }
+
+/* Conversation list items */
+.conversation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 6px;
+}
+.conversation-list .conversation-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.conversation-list .conversation-item:hover { background: #F8FAFC; }
+.conversation-list .conversation-item.active { background: #EEF2FF; }
+.conversation-list .conversation-item .left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.conversation-list .conversation-item .conv-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.conversation-list .conversation-item .conv-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #111827;
+  font-weight: 500;
+}
+/* Dropdown menu for conversations */
+.conv-dropdown {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(2,2,33,0.08);
+  padding: 6px;
+}
+.regen-btn {
+	background: none;
+	border: 0;
+}
+.regen-btn:hover {
+	background: #f3f4f6;
+	color: #374151;
+	border-radius: 5px;
+	cursor: pointer;
+}
+.regen-btn svg {
+	font-size: 20px;
+	height: 15px;
+	padding: 0;
+	margin: 0 0 -3px;
+	color: #959ba4;
+}
+.conv-dropdown.show { display: block;z-index: 999; }
+.conv-dropdown .dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #111827;
+  font-size: 0.9rem;
+}
+.conv-dropdown .dropdown-item:hover { background: #F1F5F9; }
+/* Rename input */
+.conv-title-input {
+  width: 100%;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 0.92rem;
+}
+
 .footer-carousel::-webkit-scrollbar { display: none; }
 
 /* Subtle side fades for suggestions carousel */

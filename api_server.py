@@ -62,7 +62,7 @@ async def copilot_chat(request: Request):
 
 @app.post("/api/copilot/chat/stream")
 async def copilot_chat_stream(request: Request):
-    """Stream responses for CopilotKit"""
+    """Stream responses for CopilotKit with progress events + text chunks."""
     data = await request.json()
     messages = data.get("messages", [])
     
@@ -73,27 +73,60 @@ async def copilot_chat_stream(request: Request):
     if not user_message:
         return StreamingResponse(stream_empty_response())
     
-    # Prefer WizardAgency
-    response = await agency.get_response(user_message)
-    # Normalize to plain text
-    try:
-        if hasattr(response, 'final_output') and isinstance(response.final_output, str):
-            response_text = response.final_output
-        elif isinstance(response, str):
-            response_text = response
-        else:
-            response_text = str(response)
-    except Exception:
-        response_text = str(response)
-    
+    # Kick off response generation concurrently
+    response_task = asyncio.create_task(agency.get_response(user_message))
+
+    # Define a default progress plan (can be adapted at runtime later)
+    steps = [
+        {"id": "plan", "title": "Planning brand workflow"},
+        {"id": "name", "title": "Selecting brand name"},
+        {"id": "palette", "title": "Generating color palette"},
+        {"id": "logo", "title": "Designing logo"},
+        {"id": "save", "title": "Saving outputs"},
+    ]
+
     async def stream_response():
-        # Simulate streaming by yielding chunks of the response
-        chunks = [response_text[i:i+10] for i in range(0, len(response_text), 10)]
+        # Helper to emit SSE lines
+        def sse(payload: dict) -> str:
+            return f"data: {json.dumps(payload)}\n\n"
         
+        # 1) Progress init
+        yield sse({"type": "progress_init", "title": "Task Progress", "total": len(steps)})
+        completed = 0
+        # 2) Iterate steps and mark complete
+        for step in steps:
+            yield sse({"type": "progress_step", "id": step["id"], "title": step["title"], "status": "running"})
+            await asyncio.sleep(0.15)
+            completed += 1
+            yield sse({"type": "progress_step", "id": step["id"], "title": step["title"], "status": "complete"})
+        # 3) Progress complete
+        yield sse({"type": "progress_complete", "completed": completed, "total": len(steps)})
+
+        # 4) Await final response
+        try:
+            response = await response_task
+        except Exception as e:
+            # Emit an error event and finish
+            yield sse({"type": "error", "message": str(e)})
+            return
+        
+        # Normalize to plain text
+        try:
+            if hasattr(response, 'final_output') and isinstance(response.final_output, str):
+                response_text = response.final_output
+            elif isinstance(response, str):
+                response_text = response
+            else:
+                response_text = str(response)
+        except Exception:
+            response_text = str(response)
+        
+        # 5) Stream text chunks
+        chunks = [response_text[i:i+10] for i in range(0, len(response_text), 10)]
         for i, chunk in enumerate(chunks):
-            yield f"data: {json.dumps({'id': f'chunk-{i}', 'chunk': chunk, 'done': i == len(chunks)-1})}\n\n"
-            await asyncio.sleep(0.05)  # Small delay between chunks
-    
+            yield sse({"type": "text_chunk", "id": f"chunk-{i}", "chunk": chunk, "done": i == len(chunks)-1})
+            await asyncio.sleep(0.05)
+
     return StreamingResponse(stream_response(), media_type="text/event-stream")
 
 async def stream_empty_response():

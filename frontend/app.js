@@ -25,9 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let conversations = [];
     let activeConversationId = null;
     let nextConvIndex = 1;
-    const defaultAvatar = (personaAvatarImg && personaAvatarImg.src) ? personaAvatarImg.src : 'assets/female-2.webp';
+    const landingAvatarImg = document.querySelector('.landing-avatar img');
+const defaultAvatar = (personaAvatarImg && personaAvatarImg.src)
+    ? personaAvatarImg.src
+    : (landingAvatarImg && landingAvatarImg.src) ? landingAvatarImg.src : 'assets/female-2.webp';
+// Flag to track whether an assistant response is currently generating
+let isGenerating = false;
     // API base configuration: if frontend is served by a static server (e.g., :5500), point to FastAPI backend on :8080
-    const API_ORIGIN = window.API_ORIGIN || ((window.location.port === '8080' || window.location.port === '8011') ? window.location.origin : 'http://127.0.0.1:8080');
+    const API_ORIGIN = window.API_ORIGIN || ((window.location.port === '8080') ? window.location.origin : 'http://127.0.0.1:8080');
     const API_BASE = API_ORIGIN;
 
     const genId = () => Math.random().toString(36).slice(2, 10);
@@ -101,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Bind click switching via delegation, with delete support
         if (conversationListEl && !conversationListEl.__bound) {
             conversationListEl.addEventListener('click', (e) => {
+                if (typeof isGenerating !== 'undefined' && isGenerating) { try { e.preventDefault(); e.stopPropagation(); } catch(_) {} return; }
                 const item = e.target.closest('.conversation-item');
                 // Delete button
                 if (e.target.closest('.conv-delete')) {
@@ -179,6 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { /* no-op */ }
     };
     const switchConversation = (id) => {
+        // Prevent switching conversations while a response is generating
+        if (typeof isGenerating !== 'undefined' && isGenerating && id !== activeConversationId) return;
         const conv = conversations.find(c => c.id === id);
         if (!conv) return;
         activeConversationId = id;
@@ -436,6 +444,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize chat history
     let chatHistory = [];
+
+    // Persist chatHistory back into the active conversation and refresh the sidebar
+    function persistActiveConversationHistory() {
+        try {
+            const conv = getActiveConv && getActiveConv();
+            if (conv) {
+                conv.history = (chatHistory || []).slice();
+                saveConversations();
+                renderConversationList();
+            }
+        } catch (e) { /* no-op */ }
+    }
+    // Persist provided history into a specific conversation by id (used to continue generation even after switching)
+    function persistConversationHistory(id, history) {
+        try {
+            const conv = conversations.find(c => c.id === id);
+            if (conv) {
+                conv.history = (history || []).slice();
+                saveConversations();
+                renderConversationList();
+            }
+        } catch (e) { /* no-op */ }
+    }
+
     let lastUserMessage = '';
     let genStartTime = null;
     let recognizing = false;
@@ -453,6 +485,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof renderChatFromHistory === 'function') {
                 renderChatFromHistory(chatHistory);
             }
+            // Initialize lastUserMessage from most recent user entry so Regenerate works after refresh
+            try {
+                const lastUser = Array.isArray(chatHistory) ? [...chatHistory].reverse().find(m => m && m.role === 'user' && typeof m.content === 'string') : null;
+                lastUserMessage = lastUser ? (lastUser.content || '') : '';
+            } catch (_) { /* no-op */ }
         } catch (e) { /* no-op */ }
     })();
 
@@ -1189,7 +1226,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
     
-            // Helper: meta footer
+            // Helper: meta footer (timestamp + copy icon)
             const insertAssistantMeta = () => {
                 const meta = document.createElement('div');
                 meta.className = 'message-meta';
@@ -1205,11 +1242,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 agoEl.setAttribute('data-timestamp', String(createdAt));
                 agoEl.textContent = formatTimeAgo(createdAt);
                 meta.appendChild(agoEl);
+                const regenBtn = document.createElement('button');
+                regenBtn.className = 'regen-btn';
+                regenBtn.title = 'Regenerate';
+                regenBtn.setAttribute('aria-label', 'Regenerate response');
+                regenBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="icon"><path d="M3.502 16.6663V13.3333C3.502 12.9661 3.79977 12.6683 4.16704 12.6683H7.50004L7.63383 12.682C7.93691 12.7439 8.16508 13.0119 8.16508 13.3333C8.16508 13.6547 7.93691 13.9227 7.63383 13.9847L7.50004 13.9984H5.47465C6.58682 15.2249 8.21842 16.0013 10 16.0013C13.06 16.0012 15.5859 13.711 15.9551 10.7513L15.9854 10.6195C16.0845 10.3266 16.3785 10.1334 16.6973 10.1732C17.0617 10.2186 17.3198 10.551 17.2745 10.9154L17.2247 11.2523C16.6301 14.7051 13.6224 17.3313 10 17.3314C8.01103 17.3314 6.17188 16.5383 4.83208 15.2474V16.6663C4.83208 17.0335 4.53411 17.3311 4.16704 17.3314C3.79977 17.3314 3.502 17.0336 3.502 16.6663ZM4.04497 9.24935C3.99936 9.61353 3.66701 9.87178 3.30278 9.8265C2.93833 9.78105 2.67921 9.44876 2.72465 9.08431L4.04497 9.24935ZM10 2.66829C11.9939 2.66833 13.8372 3.46551 15.1778 4.76204V3.33333C15.1778 2.96616 15.4757 2.66844 15.8428 2.66829C16.2101 2.66829 16.5079 2.96606 16.5079 3.33333V6.66634C16.5079 7.03361 16.2101 7.33138 15.8428 7.33138H12.5098C12.1425 7.33138 11.8448 7.03361 11.8448 6.66634C11.8449 6.29922 12.1426 6.0013 12.5098 6.0013H14.5254C13.4133 4.77488 11.7816 3.99841 10 3.99837C6.93998 3.99837 4.41406 6.28947 4.04497 9.24935L3.38481 9.16634L2.72465 9.08431C3.17574 5.46702 6.26076 2.66829 10 2.66829Z"></path></svg>';
+                regenBtn.addEventListener('click', () => {
+                    try {
+                        if (isGenerating) return;
+                        // Use the last user message for regeneration; configurable to target specific threads if desired
+                        const text = (lastUserMessage || '').trim();
+                        if (!text) return;
+                        userInput.value = text;
+                        sendMessage();
+                    } catch (e) { /* no-op */ }
+                });
+                meta.appendChild(regenBtn);
+
                 const copyBtn = document.createElement('button');
                 copyBtn.className = 'copy-btn';
                 copyBtn.title = 'Copy';
                 copyBtn.setAttribute('aria-label', 'Copy message');
-                copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="component-iconify MuiBox-root css-1570kgy iconify iconify--solar" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 11.397c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c2.715 0 4.073 0 4.916.847c.844.847.844 2.21.844 4.936v4.82c0 2.726 0 4.089-.844 4.936c-.843.847-2.201.847-4.916.847h-2.88c-2.716 0-4.073 0-4.917-.847s-.843-2.21-.843-4.936z"></path><path fill="currentColor" d="M4.172 3.172C3 4.343 3 6.229 3 10v2c0 3.771 0 5.657 1.172 6.828c.617.618 1.433.91 2.62 1.048c-.192-.84-.192-1.996-.192-3.66v-4.819c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c1.652 0 2.8 0 3.638.19c-.138-1.193-.43-2.012-1.05-2.632C16.657 2 14.771 2 11 2S5.343 2 4.172 3.172" opacity=".5"></path></svg>';
+                copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="component-iconify MuiBox-root css-1570kgy iconify iconify--solar" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 11.397c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c2.715 0 4.073 0 4.916.847c.844.847.844 2.21.844 4.936v4.82c0 2.726 0 4.089-.844 4.936c-.843.847-2.201.847-4.916.847h-2.88c-2.716 0-4.073 0-4.917-.847s-.843-2.21-.843-4.936z"></path><path fill="currentColor" d="M4.172 3.172C3 4.343 3 6.229 3 10v2c0 3.771 0 5.657 1.172 6.828c.617.618 1.433.91 2.62 1.048c-.192-.84-.192-1.996-.192-3.66v-4.819c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c1.652 0 2.8 0 3.638.19c-.138-1.193-.43-2.012-1.05-2.632C16.657 2 14.771 2 11 2S5.343 2 4.172 3.172" opacity=".5"></path></svg>';
                 copyBtn.addEventListener('click', async () => {
                     try {
                         const textToCopy = messageDiv.innerText.trim();
@@ -1223,8 +1277,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 meta.appendChild(copyBtn);
                 messageDiv.appendChild(meta);
             };
+
     
-            // Render text instantly, no typing animations
+            // Render text instantly, no typing animations (HTML formatting + meta)
             if (text && text.trim() !== '') {
                 const html = renderContentToHtml(text);
                 messageDiv.insertAdjacentHTML('beforeend', html);
@@ -1235,9 +1290,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // No text; show images and meta immediately
                 appendImages();
                 insertAssistantMeta();
+                updateAllTimeAgo();
             }
         } else {
-            // For user messages, render text with simple formatting
+            // For user messages: render formatted HTML + meta
             const html = renderContentToHtml(content);
             messageDiv.insertAdjacentHTML('beforeend', html);
             if (options.images && options.images.length) {
@@ -1277,7 +1333,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 copyBtn.className = 'copy-btn';
                 copyBtn.title = 'Copy';
                 copyBtn.setAttribute('aria-label', 'Copy message');
-                copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="component-iconify MuiBox-root css-1570kgy iconify iconify--solar" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 11.397c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c2.715 0 4.073 0 4.916.847c.844.847.844 2.21.844 4.936v4.82c0 2.726 0 4.089-.844 4.936c-.843.847-2.201.847-4.916.847h-2.88c-2.716 0-4.073 0-4.917-.847s-.843-2.21-.843-4.936z"></path><path fill="currentColor" d="M4.172 3.172C3 4.343 3 6.229 3 10v2c0 3.771 0 5.657 1.172 6.828c.617.618 1.433.91 2.62 1.048c-.192-.84-.192-1.996-.192-3.66v-4.819c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c1.652 0 2.8 0 3.638.19c-.138-1.193-.43-2.012-1.05-2.632C16.657 2 14.771 2 11 2S5.343 2 4.172 3.172" opacity=".5"></path></svg>';
+                copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="component-iconify MuiBox-root css-1570kgy iconify iconify--solar" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 11.397c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c2.715 0 4.073 0 4.916.847c.844.847.844 2.21.844 4.936v4.82c0 2.726 0 4.089-.844 4.936c-.843.847-2.201.847-4.916.847h-2.88c-2.716 0-4.073 0-4.917-.847s-.843-2.21-.843-4.936z"></path><path fill="currentColor" d="M4.172 3.172C3 4.343 3 6.229 3 10v2c0 3.771 0 5.657 1.172 6.828c.617.618 1.433.91 2.62 1.048c-.192-.84-.192-1.996-.192-3.66v-4.819c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c1.652 0 2.8 0 3.638.19c-.138-1.193-.43-2.012-1.05-2.632C16.657 2 14.771 2 11 2S5.343 2 4.172 3.172" opacity=".5"></path></svg>';
                 copyBtn.addEventListener('click', async () => {
                     try {
                         const textToCopy = messageDiv.innerText.trim();
@@ -1291,6 +1347,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 meta.appendChild(copyBtn);
                 messageDiv.appendChild(meta);
             }
+
         }
         
         const row = buildMessageRow(role, messageDiv);
@@ -1321,19 +1378,94 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Progress card state and helpers
+    let progressCard = null;
+    let progressBar = null;
+    let progressCount = null;
+    let progressStepsWrap = null;
+    const stepMap = new Map();
+
+    function ensureProgressCard(title, total) {
+        if (!progressCard) {
+            progressCard = document.createElement('div');
+            progressCard.className = 'progress-card';
+            progressCard.innerHTML = `
+                <div class="progress-header">
+                    <div class="title">${title || 'Task Progress'}</div>
+                    <div class="count"><span class="pcount">0/${total} Complete</span></div>
+                </div>
+                <div class="progress-bar-wrap"><div class="progress-bar"></div></div>
+                <div class="progress-steps"></div>
+            `;
+            chatMessages.appendChild(progressCard);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            progressBar = progressCard.querySelector('.progress-bar');
+            progressCount = progressCard.querySelector('.pcount');
+            progressStepsWrap = progressCard.querySelector('.progress-steps');
+        } else {
+            // update header
+            const ttlEl = progressCard.querySelector('.progress-header .title');
+            ttlEl.textContent = title || 'Task Progress';
+            progressCount.textContent = `0/${total} Complete`;
+            progressBar.style.width = '0%';
+            stepMap.clear();
+            progressStepsWrap.innerHTML = '';
+        }
+        progressCard.dataset.total = String(total || 0);
+    }
+
+    function upsertStep(id, title, status) {
+        let row = stepMap.get(id);
+        if (!row) {
+            row = document.createElement('div');
+            row.className = 'progress-step';
+            row.innerHTML = `<div class="icon"></div><div class="txt"></div>`;
+            stepMap.set(id, row);
+            progressStepsWrap.appendChild(row);
+        }
+        row.classList.remove('running', 'complete');
+        if (status === 'running') row.classList.add('running');
+        if (status === 'complete') row.classList.add('complete');
+        const txt = row.querySelector('.txt');
+        txt.textContent = title || id;
+
+        // update count + bar on complete
+        if (status === 'complete') {
+            const total = Number(progressCard?.dataset?.total || 0);
+            const completed = [...stepMap.values()].filter(r => r.classList.contains('complete')).length;
+            progressCount.textContent = `${completed}/${total} Complete`;
+            const pct = total ? Math.round((completed/total)*100) : 0;
+            progressBar.style.width = pct + '%';
+        }
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function finalizeProgress(completed, total) {
+        if (!progressCard) return;
+        const pct = total ? Math.round((completed/total)*100) : 100;
+        progressBar.style.width = pct + '%';
+        progressCount.textContent = `${completed}/${total} Complete`;
+    }
+
     // Stream CopilotKit chat via SSE-like response (POST + text/event-stream)
-    async function streamCopilotChat(messages, onChunk) {
+    async function streamCopilotChat(messages, onChunk, onProgress, opts = {}) {
         try {
             const response = await fetch(`${API_BASE}/api/copilot/chat/stream`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ messages })
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'text/event-stream'
+                },
+                body: JSON.stringify({ messages }),
+                signal: opts.signal
             });
             if (!response.ok) throw new Error(`Stream failed: ${response.status}`);
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
             let done = false;
             let buffer = '';
+            let hadChunks = false;
+            let sawDone = false;
             while (!done) {
                 const { value, done: readerDone } = await reader.read();
                 done = readerDone;
@@ -1348,14 +1480,35 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (line.startsWith('data: ')) {
                                 try {
                                     const evt = JSON.parse(line.slice(6));
-                                    if (evt && typeof evt.chunk === 'string') {
-                                        onChunk(evt.chunk, !!evt.done);
+                                    if (evt) {
+                                        // Explicit server error event
+                                        if (evt.type === 'error') {
+                                            throw new Error(evt.message || 'Stream error');
+                                        }
+                                        // Progress events
+                                        if (onProgress && evt.type) {
+                                            onProgress(evt);
+                                        }
+                                        // Text chunks
+                                        if (typeof evt.chunk === 'string') {
+                                            hadChunks = true;
+                                            if (evt.done) sawDone = true;
+                                            onChunk && onChunk(evt.chunk, !!evt.done);
+                                        }
                                     }
-                                } catch (e) { /* ignore parse errors */ }
+                                } catch (e) { /* ignore parse errors except explicit stream error */ }
                             }
                         }
                     }
                 }
+            }
+            // If finished without an explicit done flag, finalize the UI
+            if (hadChunks && !sawDone) {
+                try { onChunk && onChunk('', true); } catch(_) {}
+            }
+            // If there were no chunks at all, still finalize the UI to remove loaders
+            if (!hadChunks) {
+                try { onChunk && onChunk('', true); } catch(_) {}
             }
         } catch (e) {
             throw e;
@@ -1363,10 +1516,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function sendMessage() {
+        if (isGenerating) return;
         const message = userInput.value.trim();
         if (!message) return;
         // Auto-hide footer when a chat session begins
         hideCopilotFooter();
+        // Mark generating and disable other interactions
+        isGenerating = true;
+        try { conversationListEl && conversationListEl.classList.add('generating'); } catch(_) {}
+        try { inputContainer && inputContainer.classList.add('generating'); document.body && document.body.classList.add('generating'); } catch(_) {}
+        // Capture original conversation to persist history correctly even if user switches
+        const generatingConvId = activeConversationId;
+        let generatingHistory = [];
+        try {
+            const conv0 = conversations.find(c => c.id === generatingConvId);
+            generatingHistory = (conv0 && Array.isArray(conv0.history)) ? conv0.history.slice() : [];
+        } catch (e) { generatingHistory = []; }
+        // Ensure main chat UI is visible (in case user sends without selecting an agent)
+        try { if (typeof revealApp === 'function') revealApp(); } catch(_) {}
 
         // Rename active conversation from default on first user message
         try {
@@ -1389,15 +1556,17 @@ document.addEventListener('DOMContentLoaded', () => {
         lastUserMessage = message;
         // Add user message to chat
         addMessageToChat('user', message);
+        // Also reflect this user message in the generating conversation's history in case user switches
+        try {
+            generatingHistory.push({ role: 'user', content: message, createdAt: Date.now() });
+            persistConversationHistory(generatingConvId, generatingHistory);
+        } catch (e) { /* no-op */ }
+        // Interactive progress message handling removed (reverted)
         userInput.value = '';
         // Reset input state
         userInput.style.height = '';
         adjustInputState();
 
-        // Add loading indicator (static, no animation)
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'message assistant-message loading';
-        loadingDiv.textContent = 'Generating...';
         // Show Stop and AI status while generating
         if (stopButton) {
             stopButton.style.display = 'inline-flex';
@@ -1405,89 +1574,297 @@ document.addEventListener('DOMContentLoaded', () => {
         if (aiStatus) {
             aiStatus.style.display = 'inline-flex';
         }
-        // No typing/thinking animations
-        currentThinkingTimer = null;
-        loadingDiv.id = 'loading-indicator';
-        const loadingContainer = document.createElement('div');
-        loadingContainer.className = 'message-container';
-        const loadingRow = buildMessageRow('assistant', loadingDiv);
-        loadingContainer.appendChild(loadingRow);
-        chatMessages.appendChild(loadingContainer);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        if (generatedNumberEl) {
+            const badge = generatedNumberEl.querySelector('.badge');
+            if (badge) badge.textContent = 'Generating...';
+        }
         genStartTime = Date.now();
 
+        // Prepare assistant message container for streaming
+        let assistantMessageDiv = document.createElement('div');
+        assistantMessageDiv.className = 'message assistant-message loading';
+        assistantMessageDiv.textContent = 'Generating...';
+        let assistantContainer = document.createElement('div');
+        assistantContainer.className = 'message-container';
+        const assistantRowInit = buildMessageRow('assistant', assistantMessageDiv);
+        assistantContainer.appendChild(assistantRowInit);
+        chatMessages.appendChild(assistantContainer);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        let streamedContent = '';
+
+        // Persist a pending assistant message so it shows up after refresh/switch
+        let assistantPendingIndex = null;
         try {
-            // Enable immediate cancellation
+            assistantPendingIndex = generatingHistory.length;
+            generatingHistory.push({ role: 'assistant', content: 'Generating...', pending: true, createdAt: Date.now() });
+            persistConversationHistory(generatingConvId, generatingHistory);
+        } catch (e) { /* no-op */ }
+
+        try {
+            // Build messages for CopilotKit streaming
+            const messages = buildCopilotMessages();
+            messages.push({ role: 'user', content: message });
+
             currentAbortController = new AbortController();
-            const response = await fetch(`${API_BASE}/api/ask`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: message }),
-                signal: currentAbortController.signal,
-            });
-            if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
-            const data = await response.json();
-            // Remove loading indicator and its wrapper to avoid blank space
-            const loadingIndicator = document.getElementById('loading-indicator');
-            if (loadingIndicator) {
-                const row = loadingIndicator.parentElement; // .message-row
-                const container = row && row.parentElement;  // .message-container
-                loadingIndicator.remove();
-                if (container && container.classList && container.classList.contains('message-container')) {
-                    container.remove();
-                } else if (row && row.classList && row.classList.contains('message-row')) {
-                    row.remove();
-                }
-            }
-            const responseText = (data && data.response) ? data.response : 'No response received';
-            const elapsedMs = genStartTime ? (Date.now() - genStartTime) : null;
-            genStartTime = null;
-            // Stop UI indicators
-            if (currentThinkingTimer) { clearInterval(currentThinkingTimer); currentThinkingTimer = null; }
-            currentAbortController = null;
-            if (stopButton) { stopButton.style.display = 'none'; }
-            if (aiStatus) { aiStatus.style.display = 'none'; }
-            addMessageToChat('assistant', responseText, { elapsedMs });
-            if (generatedNumberEl) {
-                const badge = generatedNumberEl.querySelector('.badge');
-                if (badge) {
-                    badge.textContent = `Generated in ${elapsedMs ? formatElapsed(elapsedMs) : '—'}`;
-                }
-            }
+            // Stream with progress events
+            await streamCopilotChat(messages, 
+                // onChunk callback
+                (chunk, done) => {
+                    // Update placeholder on first chunk
+                    if (assistantMessageDiv.classList.contains('loading')) {
+                        assistantMessageDiv.classList.remove('loading');
+                    }
+                    streamedContent += chunk;
+                    assistantMessageDiv.textContent = streamedContent;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    // Persist partial content so refresh shows current progress
+                    try {
+                        if (assistantPendingIndex != null) {
+                            const entry = generatingHistory[assistantPendingIndex] || { role: 'assistant', content: '' };
+                            entry.content = streamedContent;
+                            entry.pending = !done;
+                            generatingHistory[assistantPendingIndex] = entry;
+                            persistConversationHistory(generatingConvId, generatingHistory);
+                        }
+                    } catch (e) { /* no-op */ }
+                    
+                    if (done) {
+                        const elapsedMs = genStartTime ? (Date.now() - genStartTime) : null;
+                        genStartTime = null;
+
+                        // Render formatted HTML for the assistant message
+                        assistantMessageDiv.classList.remove('loading');
+                        const html = renderContentToHtml(streamedContent);
+                        assistantMessageDiv.innerHTML = html;
+
+                        // Append meta: time ago and copy button
+                        const meta = document.createElement('div');
+                        meta.className = 'message-meta';
+                        const createdAt = Date.now();
+                        const agoEl = document.createElement('span');
+                        agoEl.className = 'time-ago';
+                        agoEl.setAttribute('data-timestamp', String(createdAt));
+                        agoEl.textContent = formatTimeAgo(createdAt);
+                        meta.appendChild(agoEl);
+                        const regenBtn = document.createElement('button');
+                        regenBtn.className = 'regen-btn';
+                        regenBtn.title = 'Regenerate';
+                        regenBtn.setAttribute('aria-label', 'Regenerate response');
+                        regenBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="icon"><path d="M3.502 16.6663V13.3333C3.502 12.9661 3.79977 12.6683 4.16704 12.6683H7.50004L7.63383 12.682C7.93691 12.7439 8.16508 13.0119 8.16508 13.3333C8.16508 13.6547 7.93691 13.9227 7.63383 13.9847L7.50004 13.9984H5.47465C6.58682 15.2249 8.21842 16.0013 10 16.0013C13.06 16.0012 15.5859 13.711 15.9551 10.7513L15.9854 10.6195C16.0845 10.3266 16.3785 10.1334 16.6973 10.1732C17.0617 10.2186 17.3198 10.551 17.2745 10.9154L17.2247 11.2523C16.6301 14.7051 13.6224 17.3313 10 17.3314C8.01103 17.3314 6.17188 16.5383 4.83208 15.2474V16.6663C4.83208 17.0335 4.53411 17.3311 4.16704 17.3314C3.79977 17.3314 3.502 17.0336 3.502 16.6663ZM4.04497 9.24935C3.99936 9.61353 3.66701 9.87178 3.30278 9.8265C2.93833 9.78105 2.67921 9.44876 2.72465 9.08431L4.04497 9.24935ZM10 2.66829C11.9939 2.66833 13.8372 3.46551 15.1778 4.76204V3.33333C15.1778 2.96616 15.4757 2.66844 15.8428 2.66829C16.2101 2.66829 16.5079 2.96606 16.5079 3.33333V6.66634C16.5079 7.03361 16.2101 7.33138 15.8428 7.33138H12.5098C12.1425 7.33138 11.8448 7.03361 11.8448 6.66634C11.8449 6.29922 12.1426 6.0013 12.5098 6.0013H14.5254C13.4133 4.77488 11.7816 3.99841 10 3.99837C6.93998 3.99837 4.41406 6.28947 4.04497 9.24935L3.38481 9.16634L2.72465 9.08431C3.17574 5.46702 6.26076 2.66829 10 2.66829Z"></path></svg>';
+                        regenBtn.addEventListener('click', () => {
+                            try {
+                                if (isGenerating) return;
+                                const text = (lastUserMessage || '').trim();
+                                if (!text) return;
+                                userInput.value = text;
+                                sendMessage();
+                            } catch (e) { /* no-op */ }
+                        });
+                        meta.appendChild(regenBtn);
+                        const copyBtn = document.createElement('button');
+                        copyBtn.className = 'copy-btn';
+                        copyBtn.title = 'Copy';
+                        copyBtn.setAttribute('aria-label', 'Copy message');
+                        copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="component-iconify MuiBox-root css-1570kgy iconify iconify--solar" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 11.397c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c2.715 0 4.073 0 4.916.847c.844.847.844 2.21.844 4.936v4.82c0 2.726 0 4.089-.844 4.936c-.843.847-2.201.847-4.916.847h-2.88c-2.716 0-4.073 0-4.917-.847s-.843-2.21-.843-4.936z"></path><path fill="currentColor" d="M4.172 3.172C3 4.343 3 6.229 3 10v2c0 3.771 0 5.657 1.172 6.828c.617.618 1.433.91 2.62 1.048c-.192-.84-.192-1.996-.192-3.66v-4.819c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c1.652 0 2.8 0 3.638.19c-.138-1.193-.43-2.012-1.05-2.632C16.657 2 14.771 2 11 2S5.343 2 4.172 3.172" opacity=".5"></path></svg>';
+                        copyBtn.addEventListener('click', async () => {
+                            try {
+                                const textToCopy = assistantMessageDiv.innerText.trim();
+                                await navigator.clipboard.writeText(textToCopy);
+                                copyBtn.classList.add('copied');
+                                setTimeout(() => copyBtn.classList.remove('copied'), 1200);
+                            } catch (e) {
+                                console.error('Copy failed', e);
+                            }
+                        });
+                        meta.appendChild(copyBtn);
+                        assistantMessageDiv.appendChild(meta);
+
+                        // Finalize persisted assistant message and mark as complete
+                         try {
+                             if (assistantPendingIndex != null && generatingHistory[assistantPendingIndex]) {
+                                 generatingHistory[assistantPendingIndex].content = streamedContent;
+                                 delete generatingHistory[assistantPendingIndex].pending;
+                                 persistConversationHistory(generatingConvId, generatingHistory);
+                             }
+                         } catch (e) { /* no-op */ }
+
+                        // Update UI indicators
+                        if (stopButton) { stopButton.style.display = 'none'; }
+                        if (aiStatus) { aiStatus.style.display = 'none'; }
+
+                        if (generatedNumberEl) {
+                            const badge = generatedNumberEl.querySelector('.badge');
+                            if (badge) {
+                                badge.textContent = `Generated in ${elapsedMs ? formatElapsed(elapsedMs) : '—'}`;
+                            }
+                        }
+
+                        // Re-enable conversation switching
+                        isGenerating = false;
+                        try { conversationListEl && conversationListEl.classList.remove('generating'); } catch(_) {}
+                        try { inputContainer && inputContainer.classList.remove('generating'); document.body && document.body.classList.remove('generating'); } catch(_) {}
+
+                        // Refresh time-ago labels immediately
+                        updateAllTimeAgo();
+                    }
+                },
+                // onProgress callback
+                (evt) => {
+                    if (evt.type === 'progress_init') {
+                        ensureProgressCard(evt.title, evt.total);
+                    } else if (evt.type === 'progress_step') {
+                        upsertStep(evt.id, evt.title, evt.status);
+                    } else if (evt.type === 'progress_complete') {
+                        finalizeProgress(evt.completed, evt.total);
+                    }
+                },
+                { signal: currentAbortController.signal }
+            );
+
         } catch (error) {
-            // Remove loading indicator and its wrapper to avoid blank space
-            const loadingIndicator = document.getElementById('loading-indicator');
-            if (loadingIndicator) {
-                const row = loadingIndicator.parentElement; // .message-row
-                const container = row && row.parentElement;  // .message-container
-                loadingIndicator.remove();
-                if (container && container.classList && container.classList.contains('message-container')) {
-                    container.remove();
-                } else if (row && row.classList && row.classList.contains('message-row')) {
-                    row.remove();
-                }
-            }
             const elapsedMs = genStartTime ? (Date.now() - genStartTime) : null;
             genStartTime = null;
+            let errorMsg = null;
+            
             // Stop UI indicators
-            if (currentThinkingTimer) { clearInterval(currentThinkingTimer); currentThinkingTimer = null; }
-            const wasAborted = error && (error.name === 'AbortError' || /abort/i.test(error.message || ''));
-            currentAbortController = null;
             if (stopButton) { stopButton.style.display = 'none'; }
             if (aiStatus) { aiStatus.style.display = 'none'; }
+            
+            const wasAborted = error && (error.name === 'AbortError' || /abort/i.test(error.message || ''));
+            
             if (wasAborted) {
-                addMessageToChat('assistant', 'Generation stopped.', { elapsedMs });
+                if (assistantMessageDiv) {
+                    assistantMessageDiv.classList.remove('loading');
+                    const finalContent = streamedContent + '\n\n[Generation stopped]';
+                    assistantMessageDiv.innerHTML = renderContentToHtml(finalContent);
+                    // Append meta: time ago + copy button
+                    const meta = document.createElement('div');
+                    meta.className = 'message-meta';
+                    const createdAt = Date.now();
+                    const agoEl = document.createElement('span');
+                    agoEl.className = 'time-ago';
+                    agoEl.setAttribute('data-timestamp', String(createdAt));
+                    agoEl.textContent = formatTimeAgo(createdAt);
+                    meta.appendChild(agoEl);
+                    const regenBtn = document.createElement('button');
+                    regenBtn.className = 'regen-btn';
+                    regenBtn.title = 'Regenerate';
+                    regenBtn.setAttribute('aria-label', 'Regenerate response');
+                    regenBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="icon"><path d="M3.502 16.6663V13.3333C3.502 12.9661 3.79977 12.6683 4.16704 12.6683H7.50004L7.63383 12.682C7.93691 12.7439 8.16508 13.0119 8.16508 13.3333C8.16508 13.6547 7.93691 13.9227 7.63383 13.9847L7.50004 13.9984H5.47465C6.58682 15.2249 8.21842 16.0013 10 16.0013C13.06 16.0012 15.5859 13.711 15.9551 10.7513L15.9854 10.6195C16.0845 10.3266 16.3785 10.1334 16.6973 10.1732C17.0617 10.2186 17.3198 10.551 17.2745 10.9154L17.2247 11.2523C16.6301 14.7051 13.6224 17.3313 10 17.3314C8.01103 17.3314 6.17188 16.5383 4.83208 15.2474V16.6663C4.83208 17.0335 4.53411 17.3311 4.16704 17.3314C3.79977 17.3314 3.502 17.0336 3.502 16.6663ZM4.04497 9.24935C3.99936 9.61353 3.66701 9.87178 3.30278 9.8265C2.93833 9.78105 2.67921 9.44876 2.72465 9.08431L4.04497 9.24935ZM10 2.66829C11.9939 2.66833 13.8372 3.46551 15.1778 4.76204V3.33333C15.1778 2.96616 15.4757 2.66844 15.8428 2.66829C16.2101 2.66829 16.5079 2.96606 16.5079 3.33333V6.66634C16.5079 7.03361 16.2101 7.33138 15.8428 7.33138H12.5098C12.1425 7.33138 11.8448 7.03361 11.8448 6.66634C11.8449 6.29922 12.1426 6.0013 12.5098 6.0013H14.5254C13.4133 4.77488 11.7816 3.99841 10 3.99837C6.93998 3.99837 4.41406 6.28947 4.04497 9.24935L3.38481 9.16634L2.72465 9.08431C3.17574 5.46702 6.26076 2.66829 10 2.66829Z"></path></svg>';
+                    regenBtn.addEventListener('click', () => {
+                        try {
+                            if (isGenerating) return;
+                            const text = (lastUserMessage || '').trim();
+                            if (!text) return;
+                            userInput.value = text;
+                            sendMessage();
+                        } catch (e) { /* no-op */ }
+                    });
+                    meta.appendChild(regenBtn);
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.title = 'Copy';
+                    copyBtn.setAttribute('aria-label', 'Copy message');
+                    copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="component-iconify MuiBox-root css-1570kgy iconify iconify--solar" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 11.397c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c2.715 0 4.073 0 4.916.847c.844.847.844 2.21.844 4.936v4.82c0 2.726 0 4.089-.844 4.936c-.843.847-2.201.847-4.916.847h-2.88c-2.716 0-4.073 0-4.917-.847s-.843-2.21-.843-4.936z"></path><path fill="currentColor" d="M4.172 3.172C3 4.343 3 6.229 3 10v2c0 3.771 0 5.657 1.172 6.828c.617.618 1.433.91 2.62 1.048c-.192-.84-.192-1.996-.192-3.66v-4.819c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c1.652 0 2.8 0 3.638.19c-.138-1.193-.43-2.012-1.05-2.632C16.657 2 14.771 2 11 2S5.343 2 4.172 3.172" opacity=".5"></path></svg>';
+                    copyBtn.addEventListener('click', async () => {
+                        try {
+                            const textToCopy = assistantMessageDiv.innerText.trim();
+                            await navigator.clipboard.writeText(textToCopy);
+                            copyBtn.classList.add('copied');
+                            setTimeout(() => copyBtn.classList.remove('copied'), 1200);
+                        } catch (e) {
+                            console.error('Copy failed', e);
+                        }
+                    });
+                    meta.appendChild(copyBtn);
+                    assistantMessageDiv.appendChild(meta);
+                } else {
+                    if (activeConversationId === generatingConvId) {
+                        addMessageToChat('assistant', 'Generation stopped.', { elapsedMs });
+                    }
+                }
                 if (generatedNumberEl) {
                     const badge = generatedNumberEl.querySelector('.badge');
                     if (badge) { badge.textContent = 'Generation stopped'; }
                 }
             } else {
-                addMessageToChat('assistant', 'Error: ' + (error && error.message ? error.message : 'Unknown error'), { elapsedMs });
+                errorMsg = 'Error: ' + (error && error.message ? error.message : 'Unknown error');
+                if (assistantMessageDiv) {
+                    assistantMessageDiv.classList.remove('loading');
+                    const finalContent = streamedContent + '\n\n' + errorMsg;
+                    assistantMessageDiv.innerHTML = renderContentToHtml(finalContent);
+                    // Append meta: time ago + copy button
+                    const meta = document.createElement('div');
+                    meta.className = 'message-meta';
+                    const createdAt = Date.now();
+                    const agoEl = document.createElement('span');
+                    agoEl.className = 'time-ago';
+                    agoEl.setAttribute('data-timestamp', String(createdAt));
+                    agoEl.textContent = formatTimeAgo(createdAt);
+                    meta.appendChild(agoEl);
+                    const regenBtn = document.createElement('button');
+                    regenBtn.className = 'regen-btn';
+                    regenBtn.title = 'Regenerate';
+                    regenBtn.setAttribute('aria-label', 'Regenerate response');
+                    regenBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="icon"><path d="M3.502 16.6663V13.3333C3.502 12.9661 3.79977 12.6683 4.16704 12.6683H7.50004L7.63383 12.682C7.93691 12.7439 8.16508 13.0119 8.16508 13.3333C8.16508 13.6547 7.93691 13.9227 7.63383 13.9847L7.50004 13.9984H5.47465C6.58682 15.2249 8.21842 16.0013 10 16.0013C13.06 16.0012 15.5859 13.711 15.9551 10.7513L15.9854 10.6195C16.0845 10.3266 16.3785 10.1334 16.6973 10.1732C17.0617 10.2186 17.3198 10.551 17.2745 10.9154L17.2247 11.2523C16.6301 14.7051 13.6224 17.3313 10 17.3314C8.01103 17.3314 6.17188 16.5383 4.83208 15.2474V16.6663C4.83208 17.0335 4.53411 17.3311 4.16704 17.3314C3.79977 17.3314 3.502 17.0336 3.502 16.6663ZM4.04497 9.24935C3.99936 9.61353 3.66701 9.87178 3.30278 9.8265C2.93833 9.78105 2.67921 9.44876 2.72465 9.08431L4.04497 9.24935ZM10 2.66829C11.9939 2.66833 13.8372 3.46551 15.1778 4.76204V3.33333C15.1778 2.96616 15.4757 2.66844 15.8428 2.66829C16.2101 2.66829 16.5079 2.96606 16.5079 3.33333V6.66634C16.5079 7.03361 16.2101 7.33138 15.8428 7.33138H12.5098C12.1425 7.33138 11.8448 7.03361 11.8448 6.66634C11.8449 6.29922 12.1426 6.0013 12.5098 6.0013H14.5254C13.4133 4.77488 11.7816 3.99841 10 3.99837C6.93998 3.99837 4.41406 6.28947 4.04497 9.24935L3.38481 9.16634L2.72465 9.08431C3.17574 5.46702 6.26076 2.66829 10 2.66829Z"></path></svg>';
+                    regenBtn.addEventListener('click', () => {
+                        try {
+                            if (isGenerating) return;
+                            const text = (lastUserMessage || '').trim();
+                            if (!text) return;
+                            userInput.value = text;
+                            sendMessage();
+                        } catch (e) { /* no-op */ }
+                    });
+                    meta.appendChild(regenBtn);
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.title = 'Copy';
+                    copyBtn.setAttribute('aria-label', 'Copy message');
+                    copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="component-iconify MuiBox-root css-1570kgy iconify iconify--solar" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 11.397c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c2.715 0 4.073 0 4.916.847c.844.847.844 2.21.844 4.936v4.82c0 2.726 0 4.089-.844 4.936c-.843.847-2.201.847-4.916.847h-2.88c-2.716 0-4.073 0-4.917-.847s-.843-2.21-.843-4.936z"></path><path fill="currentColor" d="M4.172 3.172C3 4.343 3 6.229 3 10v2c0 3.771 0 5.657 1.172 6.828c.617.618 1.433.91 2.62 1.048c-.192-.84-.192-1.996-.192-3.66v-4.819c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c1.652 0 2.8 0 3.638.19c-.138-1.193-.43-2.012-1.05-2.632C16.657 2 14.771 2 11 2S5.343 2 4.172 3.172" opacity=".5"></path></svg>';
+                    copyBtn.addEventListener('click', async () => {
+                        try {
+                            const textToCopy = assistantMessageDiv.innerText.trim();
+                            await navigator.clipboard.writeText(textToCopy);
+                            copyBtn.classList.add('copied');
+                            setTimeout(() => copyBtn.classList.remove('copied'), 1200);
+                        } catch (e) {
+                            console.error('Copy failed', e);
+                        }
+                    });
+                    meta.appendChild(copyBtn);
+                    assistantMessageDiv.appendChild(meta);
+                } else {
+                    if (activeConversationId === generatingConvId) {
+                        addMessageToChat('assistant', errorMsg, { elapsedMs });
+                    }
+                }
                 if (generatedNumberEl) {
                     const badge = generatedNumberEl.querySelector('.badge');
                     if (badge) { badge.textContent = `Generated in ${elapsedMs ? formatElapsed(elapsedMs) : '—'}`; }
                 }
             }
+            
+            // Update pending assistant message with final error/aborted status in original conversation
+            if (streamedContent) {
+                const finalContent = wasAborted ? 
+                    streamedContent + '\n\n[Generation stopped]' : 
+                    streamedContent + '\n\n' + (errorMsg || '');
+                try {
+                    if (assistantPendingIndex != null && generatingHistory[assistantPendingIndex]) {
+                        generatingHistory[assistantPendingIndex].content = finalContent;
+                        delete generatingHistory[assistantPendingIndex].pending;
+                        persistConversationHistory(generatingConvId, generatingHistory);
+                    }
+                } catch (e) { /* no-op */ }
+            }
+
+            // Re-enable conversation switching
+            isGenerating = false;
+            try { conversationListEl && conversationListEl.classList.remove('generating'); } catch(_) {}
+            try { inputContainer && inputContainer.classList.remove('generating'); document.body && document.body.classList.remove('generating'); } catch(_) {}
+            // Refresh time-ago labels immediately
+            updateAllTimeAgo();
         }
     }
 
